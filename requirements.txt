@@ -1,4 +1,4 @@
-transformers==4.13.0
+transformers
 nltk
 datasets
 wandb

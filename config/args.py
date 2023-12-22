@@ -17,7 +17,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument('--val_batch_size',type=int, default=4)
     parser.add_argument('--test_batch_size',type=int,default=1)
     # Model hyperparameters
-    parser.add_argument('--model_name',type=ModelCheckpointOptions, choices=list(ModelCheckpointOptions), default='facebook/bart-large')
+    parser.add_argument('--model_name',type=ModelCheckpointOptions, choices=list(ModelCheckpointOptions), default='facebook/bart-large-xsum')
     # Optimizer hyperparameters
     parser.add_argument('--init_lr',type=float, default=3e-6)
     parser.add_argument('--warm_up',type=int, default=600)

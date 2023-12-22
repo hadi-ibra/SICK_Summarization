@@ -1,10 +1,8 @@
 import os
-
-from config.args import get_parser
-os.environ['WANDB_SILENT']="true"
-
 import sys
 sys.path.append('../')
+from config.args import get_parser
+os.environ['WANDB_SILENT']="true"
 import argparse
 import random
 import json
@@ -20,6 +18,9 @@ from datasets import load_metric
 import wandb
 from data.dataset import SamsumDataset_total, DialogsumDataset_total
 
+
+MY_TOKEN = "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"
+
 def get_args() -> argparse.Namespace:
     parser = get_parser()
     args = parser.parse_args()
@@ -30,9 +31,10 @@ def is_cuda_available() -> torch.device:
     print('######################################################################')
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print('Device:', device)
-    print('Current cuda device:', torch.cuda.current_device())
-    print('Count of using GPUs:', torch.cuda.device_count())
-    print(torch.cuda.get_device_name())
+    if torch.cuda.is_available():
+        print('Current cuda device:', torch.cuda.current_device())
+        print('Count of using GPUs:', torch.cuda.device_count())
+        print(torch.cuda.get_device_name())
     print('######################################################################')
     return device
 
@@ -59,9 +61,9 @@ def set_wandb(args: argparse.Namespace) -> None:
     run_name = f"context_{args.dataset_name}_{args.relation}_{cs}_lr{str(args.init_lr)}"
     
     wandb.init(
-        project = "SICK",
+        project = "basic_training",
         reinit  = True,
-        entity  = "NLP_team",
+        entity  = "nlp_sick_polito",
         name    = run_name
     )
 
@@ -105,7 +107,7 @@ def get_metric():
 
 def get_tokenizer(model_name: str):
     # Load Tokenizer associated to the model
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, token=MY_TOKEN)
     # Add special token 
     special_tokens_dict = {'additional_special_tokens':['<I>','</I>']}
     tokenizer.add_special_tokens(special_tokens_dict)
@@ -135,8 +137,8 @@ def get_dataset(args: argparse.Namespace):
 
 def get_checkpoint(model_name: str, tokenizer, device: torch.device):
     # Loading checkpoint of model
-    config = AutoConfig.from_pretrained(model_name)
-    finetune_model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+    config = AutoConfig.from_pretrained(model_name, token=MY_TOKEN)
+    finetune_model = AutoModelForSeq2SeqLM.from_pretrained(model_name, token=MY_TOKEN)
     print('######################################################################')
     print("Number of Model Parameters are : ",finetune_model.num_parameters())
     print('######################################################################')
@@ -182,13 +184,14 @@ def preprocess_logits_for_metrics(logits, labels):
 if __name__ == "__main__":
     try:
         args = get_args()
+        args.model_name = "facebook/bart-large-xsum"
         device = is_cuda_available()
         set_wandb(args)
-        a()
+        a(args)
         metric = get_metric()
         tokenizer = get_tokenizer(args.model_name)
         total_dataset, train_dataset, eval_dataset, test_dataset = get_dataset(args)
-        finetune_model = get_checkpoint()
+        finetune_model = get_checkpoint(args.model_name, tokenizer, device)
         
         # Set Training Arguments (& Connect to WANDB)
         finetune_args = Seq2SeqTrainingArguments(
@@ -220,7 +223,7 @@ if __name__ == "__main__":
             #warmup_ratio= ,
             warmup_steps= args.warm_up,
             save_total_limit=1,
-            fp16=True,
+            #fp16=True,
             seed = 516,
             load_best_model_at_end=True,
             predict_with_generate=True,

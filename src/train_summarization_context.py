@@ -11,6 +11,10 @@ from datasets import load_metric
 import wandb
 from data.dataset import SamsumDataset_total, DialogsumDataset_total
 
+import nltk
+nltk.download('punkt')
+
+
 os.environ['WANDB_SILENT']="true"
 
 MY_TOKEN = "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"

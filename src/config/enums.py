@@ -7,7 +7,14 @@ class ModelCheckpointOptions(str, enum.Enum):
     PEGASUS_XSUM = "google/pegasus-xsum",
     T5_LARGE_LM = "google/t5-large-lm-adapt", 
     T5_V1_LARGE = "google/t5-v1_1-large"
+
+    def __str__(self) -> str:
+        return self.value
     
 class DatasetOptions(str, enum.Enum):
     SAMSUM = "samsum",
     DIALOGSUM = "dialogsum",
+    DEBUG = "samsum_debug"
+
+    def __str__(self) -> str:
+        return self.value

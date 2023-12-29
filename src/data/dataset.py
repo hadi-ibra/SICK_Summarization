@@ -45,62 +45,67 @@ class SamsumDataset(Dataset):
         self.id = self.data['id']
 
         self.nlp = spacy.load('en_core_web_sm')
-        
+
         ###########################
         #   LOAD .json dataset    #
         ###########################
+        comet_samsum_dialog_path = "src/data/COMET_data/comet/dialogue/samsum"
+        paracomet_samsum_dialog_path = "src/data/COMET_data/paracomet/dialogue/samsum"
+
         if self.extra_context==True:
             if self.paracomet==False:
                 ##### COMET #####
-                with open(f"../data/COMET_data/comet/dialogue/samsum/comet_{self.split_type}.json") as f:
+                with open(f"{comet_samsum_dialog_path}/comet_{self.split_type}.json") as f:
                     self.dialogue_comet_inference = json.load(f)
                 
                 if self.roberta:
                     print('ROBERTA ON!')
-                    with open(f"../data/COMET_data/comet/dialogue/samsum/roberta_nli/roberta_classified_top1_{self.split_type}.json") as f:
+                    with open(f"{comet_samsum_dialog_path}/roberta_nli/roberta_classified_top1_{self.split_type}.json") as f:
                         self.roberta_classified_z = json.load(f)
                 if self.sentence_transformer:
-                    with open(f"../data/COMET_data/comet/dialogue/samsum/sentence_transformer/comet_{self.split_type}_z.json") as f:
+                    with open(f"{comet_samsum_dialog_path}/sentence_transformer/comet_{self.split_type}_z.json") as f:
                         self.sentence_transformer_classified_z = json.load(f)
                         
                     
             else:
                 
-                with open(f"../data/COMET_data/paracomet/dialogue/samsum/dialog_{self.split_type}_split5_collated.json") as f:
+                with open(f"{paracomet_samsum_dialog_path}/dialog_{self.split_type}_split5_collated.json") as f:
                     self.dialogue_comet_inference = json.load(f)
                 if self.roberta:
                     print('ROBERTA ON!')
-                    with open(f"../data/COMET_data/paracomet/dialogue/samsum/roberta_nli/paracomet_samsum_roberta_classified_top1_{self.split_type}.json") as f:
+                    with open(f"{paracomet_samsum_dialog_path}/roberta_nli/paracomet_samsum_roberta_classified_top1_{self.split_type}.json") as f:
                         self.roberta_classified_z = json.load(f)
                 if self.sentence_transformer:
-                    with open(f"../data/COMET_data/paracomet/dialogue/samsum/sentence_transformer/paracomet_{self.split_type}_z.json") as f:
+                    with open(f"{paracomet_samsum_dialog_path}/sentence_transformer/paracomet_{self.split_type}_z.json") as f:
                         self.sentence_transformer_classified_z = json.load(f)
                     
               
-        
+        commonsense_comet_path = "src/data/COMET_data/comet/summary/samsum"
+        commonsense_paracomet_path = "src/data/COMET_data/paracomet/summary/samsum"
+
         if self.extra_supervision==True: # use commonsense w
             if self.split_type=='train':
                 if self.paracomet==False: # plain COMET
-                    with open(f"../data/COMET_data/comet/summary/samsum/comet_train_w.json") as f:
+                    with open(f"{commonsense_comet_path}/comet_train_w.json") as f:
                         self.summary_comet_inference = json.load(f)
 
                     if self.roberta:
                         print('ROBERTA ON!')
-                        with open(f"../data/COMET_data/comet/summary/samsum/roberta_nli/roberta_classified_top1_w.json") as f:
+                        with open(f"{commonsense_comet_path}/roberta_nli/roberta_classified_top1_w.json") as f:
                             self.roberta_classified_w = json.load(f)
                     if self.sentence_transformer:
-                        with open(f"../data/COMET_data/comet/summary/samsum/sentence_transformer/comet_train_w.json") as f:
+                        with open(f"{commonsense_comet_path}/sentence_transformer/comet_train_w.json") as f:
                             self.sentence_transformer_classified_w = json.load(f)
                 else:
-                    with open(f"../data/COMET_data/paracomet/summary/samsum/summary_train_split5_collated.json") as f:
+                    with open(f"{commonsense_paracomet_path}/summary_train_split5_collated.json") as f:
                         self.summary_comet_inference = json.load(f)
                     if self.roberta:
                         print('ROBERTA ON!')
-                        with open(f"../data/COMET_data/paracomet/summary/samsum/roberta_nli/roberta_classified_top1_w.json") as f:
+                        with open(f"{commonsense_paracomet_path}/roberta_nli/roberta_classified_top1_w.json") as f:
                             self.roberta_classified_w = json.load(f)
                     
                     if self.sentence_transformer:
-                        with open(f"../data/COMET_data/paracomet/summary/samsum/sentence_transformer/paracomet_train_w.json") as f:
+                        with open(f"{commonsense_paracomet_path}/sentence_transformer/paracomet_train_w.json") as f:
                             self.sentence_transformer_classified_w = json.load(f)
         
         self.data_len = len(self.data)

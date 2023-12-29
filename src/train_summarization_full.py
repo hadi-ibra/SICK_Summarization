@@ -10,7 +10,7 @@ from datasets import load_metric
 import wandb
 from data.dataset import SamsumDataset_total, DialogsumDataset_total
 from models.bart import BartForConditionalGeneration_DualDecoder
-from src.trainer import DualDecoderTrainer
+from trainer import DualDecoderTrainer
 
 nltk.download("punkt")
 

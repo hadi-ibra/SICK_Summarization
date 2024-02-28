@@ -174,11 +174,10 @@ def get_dataset(args: argparse.Namespace):
 def get_checkpoint(model_name: str, tokenizer, device: torch.device):
     # Loading checkpoint of model
     config = AutoConfig.from_pretrained(model_name, token=MY_TOKEN)
-    # finetune_model = AutoModelForSeq2SeqLM.from_pretrained(model_name, token=MY_TOKEN)
     finetune_model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-    print("######################################################################")
-    print("Number of Model Parameters are : ", finetune_model.num_parameters())
-    print("######################################################################")
+    print('######################################################################')
+    print("Number of Model Parameters are : ",finetune_model.num_parameters())
+    print('######################################################################')
 
     # Set extra Configuration for Finetuning on Summarization Dataset
     finetune_model.resize_token_embeddings(len(tokenizer))

@@ -19,6 +19,8 @@ os.environ["WANDB_SILENT"] = "true"
 
 MY_TOKEN = "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"
 
+SEED = 42
+
 
 def get_args() -> argparse.Namespace:
     parser = get_parser()
@@ -63,20 +65,29 @@ def set_wandb(args: argparse.Namespace) -> None:
     wandb.init(project="basic_training", reinit=True, entity="nlp_sick_polito", name=run_name)
 
 
-def gen_prompt(training_example: str, training_summary: str, test_example: str) -> str:
-    template = f"""
-    Summarize the chat dialog.
-    Here you can find some examples:
-    DIALOG:
-    ```{training_example}```
-    SUMMARY:
-    ```{training_summary}```
-    Summarize the following chat dialog:
-    DIALOG:
-    ```{test_example}```
-    SUMMARY:
-    """
-    return template
+def gen_examples_template(training_examples: str) -> str:
+    header = "Summarize the chat dialog. Here you can find some examples:"
+    tail = "Summarize the following chat dialog in one sentence. DIALOG:"
+    examples = []
+    for dialog, summary in training_examples:
+        template_example = f"""
+DIALOG:
+```{dialog}```
+SUMMARY:
+```{summary}```
+"""
+        examples.append(template_example)
+    return header + " ".join(examples) + tail
+
+
+def get_examples(trainds, num_examples=2):
+    gen = np.random.default_rng(SEED)
+    idxes = gen.integers(0, len(trainds), size=num_examples)
+    examples = []
+    for idx in idxes:
+        dialog, summary = trainds[idx]
+        examples.append((dialog, summary))
+    return examples
 
 
 def main():
@@ -95,10 +106,10 @@ def main():
         tokenizer.add_special_tokens(special_tokens_dict)
 
         # Model
-        # model = AutoModelForCausalLM.from_pretrained(
-        # model_tag, use_auth_token=MY_TOKEN, torch_dtype=torch.float16, device_map=device
-        # )
-        model = AutoModelForCausalLM.from_pretrained(model_tag, use_auth_token=MY_TOKEN, device_map=device)
+        model = AutoModelForCausalLM.from_pretrained(
+            model_tag, use_auth_token=MY_TOKEN, torch_dtype=torch.float16, device_map=device
+        )
+        # model = AutoModelForCausalLM.from_pretrained(model_tag, use_auth_token=MY_TOKEN, device_map=device)
 
         # Dataset
         total_dataset = SamsumDataset_total(
@@ -120,29 +131,36 @@ def main():
         # Prompt
 
         temperature = 0
-        length_max = 2048
+        dialog_max_lenght = 1024
+        use_temperature = True if temperature > 0 else False
 
         model.resize_token_embeddings(len(tokenizer))
 
-        while True:
-            training_example, training_summary = train_dataset.__getitem__(0)
-            test_example, test_summary = eval_dataset.__getitem__(0)
-            prompt = gen_prompt(training_example, training_summary, test_example)
+        examples = get_examples(train_dataset, 2)
+
+        base_prompt = gen_examples_template(examples)
+
+        tokens = tokenizer.tokenize(str(base_prompt))
+        token_count = len(tokens)
+        length_max = token_count + dialog_max_lenght + 264
+
+        for dialog, summary in test_dataset:
+            prompt = base_prompt + dialog + "SUMMARY:"
             inputs = tokenizer(prompt, return_token_type_ids=False, return_tensors="pt").to(device)
             generate_ids = model.generate(
                 **inputs,
-                # do_sample=True if temperature > 0 else False,
-                do_sample=False,
+                do_sample=use_temperature,
                 temperature=temperature,
                 top_k=10,
                 num_return_sequences=1,
                 eos_token_id=tokenizer.eos_token_id,
                 max_length=length_max,
             )
-            # text = tokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
-            text = tokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)
-            print(text)
-            input("Press a key to continue")
+            output = tokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[
+                0
+            ]
+            output_summary = output.replace(prompt, "").strip().strip("\n")
+            print(output_summary)
     finally:
         wandb.finish()
 

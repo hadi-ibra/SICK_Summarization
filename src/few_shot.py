@@ -11,6 +11,7 @@ from transformers import Seq2SeqTrainingArguments, Seq2SeqTrainer
 from datasets import load_metric
 import wandb
 from data.dataset import SamsumDataset_total, DialogsumDataset_total
+import json
 
 nltk.download("punkt")
 
@@ -67,15 +68,10 @@ def set_wandb(args: argparse.Namespace) -> None:
 
 def gen_examples_template(training_examples: str) -> str:
     header = "Summarize the chat dialog. Here you can find some examples:"
-    tail = "Summarize the following chat dialog in one sentence. DIALOG:"
+    tail = "Summarize the following chat dialog in one sentence.\nDIALOG:"
     examples = []
     for dialog, summary in training_examples:
-        template_example = f"""
-DIALOG:
-```{dialog}```
-SUMMARY:
-```{summary}```
-"""
+        template_example = f"DIALOG: {dialog}\nSUMMARY: {summary}"
         examples.append(template_example)
     return header + " ".join(examples) + tail
 
@@ -88,6 +84,11 @@ def get_examples(trainds, num_examples=2):
         dialog, summary = trainds[idx]
         examples.append((dialog, summary))
     return examples
+
+
+def save_to_json(data, filename):
+    with open(f"{filename}.json", "w") as f:
+        f.write(json.dumps(data))
 
 
 def main():
@@ -124,19 +125,22 @@ def main():
             sentence_transformer=args.use_sentence_transformer,
             is_llm=True,
         )
-        train_dataset = torch.utils.data.Subset(total_dataset.getTrainData(), [i for i in range(10)])
-        eval_dataset = torch.utils.data.Subset(total_dataset.getEvalData(), [i for i in range(5)])
-        test_dataset = torch.utils.data.Subset(total_dataset.getTestData(), [i for i in range(5)])
+        # train_dataset = torch.utils.data.Subset(total_dataset.getTrainData(), [i for i in range(10)])
+        # eval_dataset = torch.utils.data.Subset(total_dataset.getEvalData(), [i for i in range(5)])
+        # test_dataset = torch.utils.data.Subset(total_dataset.getTestData(), [i for i in range(5)])
+        train_dataset = total_dataset.getTrainData()
+        test_dataset = total_dataset.getTestData()
 
         # Prompt
 
         temperature = 0
         dialog_max_lenght = 1024
         use_temperature = True if temperature > 0 else False
+        k = 2
 
         model.resize_token_embeddings(len(tokenizer))
 
-        examples = get_examples(train_dataset, 2)
+        examples = get_examples(train_dataset, k)
 
         base_prompt = gen_examples_template(examples)
 
@@ -144,8 +148,10 @@ def main():
         token_count = len(tokens)
         length_max = token_count + dialog_max_lenght + 264
 
-        for dialog, summary in test_dataset:
-            prompt = base_prompt + dialog + "SUMMARY:"
+        summaries = []
+
+        for dialog, summary_gold in test_dataset:
+            prompt = base_prompt + dialog + "SUMMARY:\n"
             inputs = tokenizer(prompt, return_token_type_ids=False, return_tensors="pt").to(device)
             generate_ids = model.generate(
                 **inputs,
@@ -159,8 +165,11 @@ def main():
             output = tokenizer.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[
                 0
             ]
-            output_summary = output.replace(prompt, "").strip().strip("\n")
+            # output_summary = output.replace(prompt, "").strip().strip("\n")
+            output_summary = output.split("SUMMARY:")[-1].strip().strip("\n")
+            summaries.append((output_summary, summary_gold))
             print(output_summary)
+        save_to_json(summaries, f"d_{args.dataset_name}_pc_{args.use_paracomet}_t_{temperature}_k_{k}")
     finally:
         wandb.finish()
 

@@ -19,6 +19,7 @@ def get_parser() -> argparse.ArgumentParser:
     # Model hyperparameters
     # parser.add_argument('--model_name',type=ModelCheckpointOptions, choices=list(ModelCheckpointOptions), default='facebook/bart-large-xsum')
     parser.add_argument("--model_name", type=ModelCheckpointOptions, choices=list(ModelCheckpointOptions))
+    parser.add_argument("--freeze_encoder", type=bool, default=False)
     # Optimizer hyperparameters
     parser.add_argument("--init_lr", type=float, default=3e-6)
     parser.add_argument("--warm_up", type=int, default=600)

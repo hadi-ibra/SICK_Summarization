@@ -175,15 +175,20 @@ def get_checkpoint(model_name: str, tokenizer, device: torch.device):
     # Loading checkpoint of model
     config = AutoConfig.from_pretrained(model_name, token=MY_TOKEN)
     finetune_model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-    print('######################################################################')
-    print("Number of Model Parameters are : ",finetune_model.num_parameters())
-    print('######################################################################')
+    print("######################################################################")
+    print("Number of Model Parameters are : ", finetune_model.num_parameters())
+    print("######################################################################")
 
     # Set extra Configuration for Finetuning on Summarization Dataset
     finetune_model.resize_token_embeddings(len(tokenizer))
     finetune_model.gradient_checkpointing_enable()
     finetune_model = finetune_model.to(device)
     return finetune_model
+
+
+def freez_weight(model):
+    for param in model.parameters():
+        param.requires_grad = False
 
 
 def compute_metrics(eval_pred):
@@ -229,6 +234,9 @@ if __name__ == "__main__":
         tokenizer = get_tokenizer(args.model_name)
         total_dataset, train_dataset, eval_dataset, test_dataset = get_dataset(args)
         finetune_model = get_checkpoint(args.model_name, tokenizer, device)
+
+        if args.freeze_encoder:
+            freez_weight(finetune_model.get_encoder())
 
         # Set Training Arguments (& Connect to WANDB)
         finetune_args = Seq2SeqTrainingArguments(

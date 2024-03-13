@@ -12,6 +12,8 @@ from datasets import load_metric
 import wandb
 from data.dataset import SamsumDataset_total, DialogsumDataset_total
 import json
+from rouge import Rouge
+from bert_score import score
 
 nltk.download("punkt")
 
@@ -91,11 +93,32 @@ def save_to_json(data, filename):
         f.write(json.dumps(data))
 
 
+def compute_metrics(summaries, device) -> dict:
+    rouge = Rouge()
+    model_summaries, gold_summaries = map(list, zip(*[s for s in summaries]))
+    score_tot = rouge.get_scores(model_summaries, gold_summaries, avg=True)
+    p_b, r_b, f_b = score(
+        model_summaries,
+        gold_summaries,
+        lang="en",
+        model_type="microsoft/deberta-large-mnli",
+        batch_size=1,
+        device=device,
+    )
+    p_bert = p_b.mean()
+    r_bert = r_b.mean()
+    f_bert = f_b.mean()
+
+    score_tot["bert"] = {"r": r_bert, "p": p_bert, "f": f_bert}
+
+    return score_tot
+
+
 def main():
     try:
         args = get_args()
         device = is_cuda_available()
-        set_wandb(args)
+        #set_wandb(args)
 
         model_tag = "meta-llama/Llama-2-7b-chat-hf"
 
@@ -133,10 +156,10 @@ def main():
 
         # Prompt
 
-        temperature = 0
+        temperature = args.temperature
         dialog_max_lenght = 1024
         use_temperature = True if temperature > 0 else False
-        k = 2
+        k = args.k
 
         model.resize_token_embeddings(len(tokenizer))
 
@@ -146,7 +169,7 @@ def main():
 
         tokens = tokenizer.tokenize(str(base_prompt))
         token_count = len(tokens)
-        length_max = token_count + dialog_max_lenght + 264
+        length_max = token_count + dialog_max_lenght
 
         summaries = []
 
@@ -168,11 +191,48 @@ def main():
             # output_summary = output.replace(prompt, "").strip().strip("\n")
             output_summary = output.split("SUMMARY:")[-1].strip().strip("\n")
             summaries.append((output_summary, summary_gold))
-            print(output_summary)
-        save_to_json(summaries, f"d_{args.dataset_name}_pc_{args.use_paracomet}_t_{temperature}_k_{k}")
+            # print(output_summary)
+        experiment_name = f"d_{args.dataset_name}_pc_{args.use_paracomet}_t_{temperature}_k_{k}"
+        save_to_json(summaries, f"summaries_{experiment_name}")
+        metrics = compute_metrics(summaries)
+        save_to_json(metrics, f"metrics_{experiment_name}")
     finally:
         wandb.finish()
 
 
+def test():
+    args = get_args()
+    device = is_cuda_available()
+    set_wandb(args)
+    model_tag = "meta-llama/Llama-2-7b-chat-hf"
+    # Tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_tag, use_auth_token=MY_TOKEN)
+    # This line is for debug we have no idea why we should use it
+    tokenizer.add_special_tokens({"pad_token": "[PAD]"})
+    special_tokens_dict = {"additional_special_tokens": ["<I>", "</I>"]}
+    tokenizer.add_special_tokens(special_tokens_dict)
+    # Dataset
+    total_dataset = SamsumDataset_total(
+        args.encoder_max_len,
+        args.decoder_max_len,
+        tokenizer,
+        extra_context=True,
+        paracomet=args.use_paracomet,
+        relation=args.relation,
+        supervision_relation=args.supervision_relation,
+        roberta=args.use_roberta,
+        sentence_transformer=args.use_sentence_transformer,
+        is_llm=True,
+    )
+    trainds = total_dataset.getTrainData()
+    elements = [(dialog, summary) for dialog, summary in trainds]
+    tokens = map(lambda e: tokenizer.tokenize(e[0] + e[1]), elements)
+    lens = list(map(lambda t: len(t), tokens))
+    avg = sum(lens) / len(lens)
+    print(avg)
+
+
 if __name__ == "__main__":
-    main()
+    a = [("aaaa", "bbbbb"), ("cccc", "ddddd")]
+    compute_metrics(a)
+    # main()

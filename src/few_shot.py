@@ -118,7 +118,7 @@ def main():
     try:
         args = get_args()
         device = is_cuda_available()
-        #set_wandb(args)
+        # set_wandb(args)
 
         model_tag = "meta-llama/Llama-2-7b-chat-hf"
 
@@ -136,11 +136,12 @@ def main():
         # model = AutoModelForCausalLM.from_pretrained(model_tag, use_auth_token=MY_TOKEN, device_map=device)
 
         # Dataset
+        extra_content = not args.only_dialog
         total_dataset = SamsumDataset_total(
             args.encoder_max_len,
             args.decoder_max_len,
             tokenizer,
-            extra_context=True,
+            extra_context=extra_content,
             paracomet=args.use_paracomet,
             relation=args.relation,
             supervision_relation=args.supervision_relation,

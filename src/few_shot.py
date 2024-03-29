@@ -234,6 +234,6 @@ def test():
 
 
 if __name__ == "__main__":
-    a = [("aaaa", "bbbbb"), ("cccc", "ddddd")]
-    compute_metrics(a)
-    # main()
+    # a = [("aaaa", "bbbbb"), ("cccc", "ddddd")]
+    # compute_metrics(a)
+    main()

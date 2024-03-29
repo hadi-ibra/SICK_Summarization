@@ -186,7 +186,7 @@ def get_checkpoint(model_name: str, tokenizer, device: torch.device):
     return finetune_model
 
 
-def freez_weight(model):
+def freeze_weight(model):
     for param in model.parameters():
         param.requires_grad = False
 
@@ -236,7 +236,7 @@ if __name__ == "__main__":
         finetune_model = get_checkpoint(args.model_name, tokenizer, device)
 
         if args.freeze_encoder:
-            freez_weight(finetune_model.get_encoder())
+            freeze_weight(finetune_model.get_encoder())
 
         # Set Training Arguments (& Connect to WANDB)
         finetune_args = Seq2SeqTrainingArguments(

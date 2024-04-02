@@ -52,6 +52,6 @@ def get_parser() -> argparse.ArgumentParser:
     # Few-shot params
     parser.add_argument("--temperature", type=float, default=0)
     parser.add_argument("--k", type=int, default=2)
-    parser.add_argument("--only_dialog", type=bool, default=False)
+    parser.add_argument("--is_llm", type=bool, default=False)
 
     return parser

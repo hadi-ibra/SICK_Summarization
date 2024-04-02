@@ -136,18 +136,17 @@ def main():
         # model = AutoModelForCausalLM.from_pretrained(model_tag, use_auth_token=MY_TOKEN, device_map=device)
 
         # Dataset
-        extra_content = not args.only_dialog
         total_dataset = SamsumDataset_total(
             args.encoder_max_len,
             args.decoder_max_len,
             tokenizer,
-            extra_context=extra_content,
+            extra_context=True,
             paracomet=args.use_paracomet,
             relation=args.relation,
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
-            is_llm=True,
+            is_llm=args.is_llm,
         )
         # train_dataset = torch.utils.data.Subset(total_dataset.getTrainData(), [i for i in range(10)])
         # eval_dataset = torch.utils.data.Subset(total_dataset.getEvalData(), [i for i in range(5)])

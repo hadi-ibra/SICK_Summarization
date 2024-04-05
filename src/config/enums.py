@@ -21,3 +21,23 @@ class DatasetOptions(str, enum.Enum):
 
     def __str__(self) -> str:
         return self.value
+
+
+class FrameworkOption(str, enum.Enum):
+    FEW_SHOT = "few_shot_learning"
+    BASIC_SICK = "basic_sick"
+    BASIC_SICK_PLUS_PLUS = "basic_sick_plus_plus"
+    IDIOM_SICK = "idiom_sick"
+    IDIOM_SICK_PLUS_PLUS = "idiom_sick_plus_plus"
+
+    def __str__(self) -> str:
+        return self.value
+
+
+class ExperimentPhase(str, enum.Enum):
+    ALL = "all"
+    TRAIN = "train"
+    TEST = "test"
+
+    def __str__(self) -> str:
+        return self.value

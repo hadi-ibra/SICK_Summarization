@@ -1,6 +1,6 @@
 import argparse
 
-from config.enums import DatasetOptions, ModelCheckpointOptions
+from config.enums import DatasetOptions, ExperimentPhase, ModelCheckpointOptions
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -10,6 +10,17 @@ def get_parser() -> argparse.ArgumentParser:
         description="Program to train and evaluate SICK architecture",
         epilog="Thanks for running me :-)",
     )
+
+    parser.add_argument(
+        "--phase", type=ExperimentPhase, choices=list(ExperimentPhase), required=True, help="Phase of the experiment"
+    )
+
+    parser.add_argument(
+        "--not_use_local_logging", action="store_true", help="disable experiment track with build-in serializer"
+    )
+
+    parser.add_argument("--not_use_wandb", action="store_true", help="disable experiment track with wandb logging")
+
     # Training hyperparameters
     parser.add_argument("--epoch", type=int, default=20)
     parser.add_argument("--train_batch_size", type=int, default=20)
@@ -53,5 +64,14 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--temperature", type=float, default=0)
     parser.add_argument("--k", type=int, default=2)
     parser.add_argument("--is_llm", type=bool, default=False)
+
+    # Inference params
+    parser.add_argument("--load_checkpoint", type=bool, default=False)
+    parser.add_argument("--model_checkpoint", type=str, default="./new_weights_comet/final_Trial1_context_comet")
+    parser.add_argument(
+        "--test_output_file_name", type=str, default="./new_weights_comet/final_Trial1_context_comet.txt"
+    )
+    parser.add_argument("--train_configuration", type=str, default="full")  # base, context, supervision, full
+    parser.add_argument("--num_beams", type=int, default=20)
 
     return parser

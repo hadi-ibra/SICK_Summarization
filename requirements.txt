@@ -3,6 +3,9 @@ nltk
 datasets
 wandb
 rouge_score
+rouge
 bert_score
 py7zr
 metrics
+overrides
+backports.zoneinfo

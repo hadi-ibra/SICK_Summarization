@@ -68,7 +68,7 @@ class SamsumDataset(Dataset):
                 
                 if self.idiom:
                     print("IDIOM Augmented Data")
-                    with open(f"../data/COMET_data/paracomet/dialogue/samsum/dialog_{self.split_type}_split5_collated.json") as f:
+                    with open(f"../data/COMET_data/paracomet/dialogue/samsum/idioms/preprocessed_{self.split_type}_data.json") as f:
                         self.dialogue_comet_inference = json.load(f)
                 
                 else:
@@ -87,6 +87,7 @@ class SamsumDataset(Dataset):
         
         if self.extra_supervision==True: # use commonsense w
             if self.split_type=='train':
+                print("HELLOOOOOO333333333333333")
                 if self.paracomet==False: # plain COMET
                     with open(f"../data/COMET_data/comet/summary/samsum/comet_train_w.json") as f:
                         self.summary_comet_inference = json.load(f)
@@ -99,6 +100,7 @@ class SamsumDataset(Dataset):
                         with open(f"../data/COMET_data/comet/summary/samsum/sentence_transformer/comet_train_w.json") as f:
                             self.sentence_transformer_classified_w = json.load(f)
                 else:
+                    print("HELLOOOOOO4444444444444444")
                     with open(f"../data/COMET_data/paracomet/summary/samsum/summary_train_split5_collated.json") as f:
                         self.summary_comet_inference = json.load(f)
                     if self.roberta:
@@ -312,7 +314,7 @@ class SamsumDataset_total:
                  extra_context=False, extra_supervision=False, paracomet=False,
                  relation="xReason", supervision_relation='isAfter',
                  roberta=False, sentence_transformer=False, idiom = False):
-        self.train_dataset = SamsumDataset(encoder_max_len, decoder_max_len, 'train',tokenizer,extra_context=extra_context,extra_supervision=extra_supervision,paracomet=paracomet,relation=relation, supervision_relation=supervision_relation, roberta=roberta, sentence_transformer=sentence_transformer, idiom = idiom)
+        self.train_datasedt = SamsumDataset(encoder_max_len, decoder_max_len, 'train',tokenizer,extra_context=extra_context,extra_supervision=extra_supervision,paracomet=paracomet,relation=relation, supervision_relation=supervision_relation, roberta=roberta, sentence_transformer=sentence_transformer, idiom = idiom)
         self.eval_dataset = SamsumDataset(encoder_max_len, decoder_max_len, 'validation', tokenizer,extra_context=extra_context,extra_supervision=extra_supervision,paracomet=paracomet,relation=relation, supervision_relation=supervision_relation, roberta=roberta, sentence_transformer=sentence_transformer, idiom = idiom)
         self.test_dataset = SamsumDataset(encoder_max_len, decoder_max_len, 'test', tokenizer,extra_context=extra_context,extra_supervision=extra_supervision,paracomet=paracomet,relation=relation, supervision_relation=supervision_relation, roberta=roberta, sentence_transformer=sentence_transformer, idiom = idiom)
     

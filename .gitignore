@@ -11,8 +11,12 @@ src/new_weights_paracomet20/
 src/wandb/
 src/tmp_result.txt
 
+models_saved/
+
 src/utils/__pycache__/
 .history
+.vscode/
+new_weights_sick/
 
 src/config/__pycache__
 

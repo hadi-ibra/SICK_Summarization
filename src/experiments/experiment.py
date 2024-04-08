@@ -28,7 +28,15 @@ class Experiment(ABC):
 class BasicExperiment(Experiment):
 
     def __init__(
-        self, model, train_ds, eval_ds, test_ds, tokenizer, gen: np.random.Generator, device, logger: Logger
+        self,
+        model,
+        train_ds,
+        eval_ds,
+        test_ds,
+        tokenizer,
+        gen: np.random.Generator,
+        device,
+        logger: Logger,
     ) -> None:
         self.model = model
         self.train_ds = train_ds

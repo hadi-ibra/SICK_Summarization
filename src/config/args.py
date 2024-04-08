@@ -1,6 +1,11 @@
 import argparse
 
-from config.enums import DatasetOptions, ExperimentPhase, ModelCheckpointOptions
+from src.config.enums import (
+    DatasetOptions,
+    ExperimentPhase,
+    FrameworkOption,
+    ModelCheckpointOptions,
+)
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -12,14 +17,49 @@ def get_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "--phase", type=ExperimentPhase, choices=list(ExperimentPhase), required=True, help="Phase of the experiment"
+        "--hugging_face_token",
+        type=str,
+        required=True,
+        help="Token to download hugging face models",
     )
 
     parser.add_argument(
-        "--not_use_local_logging", action="store_true", help="disable experiment track with build-in serializer"
+        "--framework",
+        type=FrameworkOption,
+        choices=list(FrameworkOption),
+        help="Type of framework used for experiment (e.g. sick, sick++, few_shot, etc.)",
     )
 
-    parser.add_argument("--not_use_wandb", action="store_true", help="disable experiment track with wandb logging")
+    parser.add_argument("--project", type=str, required=True, help="Project name")
+
+    parser.add_argument(
+        "--exp_name",
+        type=str,
+        required=True,
+        help="name of the experiment. It will be used to create the folder containing all the run results and model weights",
+    )
+
+    parser.add_argument(
+        "--phase",
+        type=ExperimentPhase,
+        choices=list(ExperimentPhase),
+        required=True,
+        help="Phase of the experiment",
+    )
+
+    parser.add_argument(
+        "--not_use_local_logging",
+        action="store_true",
+        help="disable experiment track with build-in serializer",
+    )
+
+    parser.add_argument(
+        "--not_use_wandb",
+        action="store_true",
+        help="disable experiment track with wandb logging",
+    )
+
+    parser.add_argument("--seed", type=int, default=516)
 
     # Training hyperparameters
     parser.add_argument("--epoch", type=int, default=20)
@@ -29,7 +69,11 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--test_batch_size", type=int, default=1)
     # Model hyperparameters
     # parser.add_argument('--model_name',type=ModelCheckpointOptions, choices=list(ModelCheckpointOptions), default='facebook/bart-large-xsum')
-    parser.add_argument("--model_name", type=ModelCheckpointOptions, choices=list(ModelCheckpointOptions))
+    parser.add_argument(
+        "--model_name",
+        type=ModelCheckpointOptions,
+        choices=list(ModelCheckpointOptions),
+    )
     parser.add_argument("--freeze_encoder", type=bool, default=False)
     # Optimizer hyperparameters
     parser.add_argument("--init_lr", type=float, default=3e-6)
@@ -47,16 +91,30 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--eos_idx", type=int, default=51200)
     parser.add_argument("--tokenizer_name", type=str, default="RobertaTokenizer")
     # Checkpoint directory hyperparameters
-    parser.add_argument("--pretrained_weight_path", type=str, default="pretrained_weights")
-    parser.add_argument("--finetune_weight_path", type=str, default="./context_BART_weights_Samsum_5epoch")
-    parser.add_argument("--best_finetune_weight_path", type=str, default="context_final_BART_weights_Samsum_5epoch")
+    parser.add_argument(
+        "--pretrained_weight_path", type=str, default="pretrained_weights"
+    )
+    parser.add_argument(
+        "--finetune_weight_path",
+        type=str,
+        default="./context_BART_weights_Samsum_5epoch",
+    )
+    parser.add_argument(
+        "--best_finetune_weight_path",
+        type=str,
+        default="context_final_BART_weights_Samsum_5epoch",
+    )
     # Dataset hyperparameters
-    parser.add_argument("--dataset_name", type=DatasetOptions, choices=list(DatasetOptions), default="samsum")
+    parser.add_argument(
+        "--dataset_name",
+        type=DatasetOptions,
+        choices=list(DatasetOptions),
+        default="samsum",
+    )
     parser.add_argument("--use_paracomet", type=bool, default=False)
     parser.add_argument("--use_roberta", type=bool, default=False)
     parser.add_argument("--use_sentence_transformer", type=bool, default=False)
     parser.add_argument("--dataset_directory", type=str, default="./data")
-    parser.add_argument("--test_output_file_name", type=str, default="samsum_context_trial2.txt")
     parser.add_argument("--relation", type=str, default="xReason")
     parser.add_argument("--supervision_relation", type=str, default="isAfter")
 
@@ -67,11 +125,16 @@ def get_parser() -> argparse.ArgumentParser:
 
     # Inference params
     parser.add_argument("--load_checkpoint", type=bool, default=False)
-    parser.add_argument("--model_checkpoint", type=str, default="./new_weights_comet/final_Trial1_context_comet")
     parser.add_argument(
-        "--test_output_file_name", type=str, default="./new_weights_comet/final_Trial1_context_comet.txt"
+        "--model_checkpoint",
+        type=str,
+        default="./new_weights_comet/final_Trial1_context_comet",
     )
-    parser.add_argument("--train_configuration", type=str, default="full")  # base, context, supervision, full
+    parser.add_argument("--test_output_file_name", type=str, default="results.json")
+    # TODO: Remove --train_configuration (probably not used in the new code, check it)
+    parser.add_argument(
+        "--train_configuration", type=str, default="full"
+    )  # base, context, supervision, full
     parser.add_argument("--num_beams", type=int, default=20)
 
     return parser

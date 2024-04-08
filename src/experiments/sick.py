@@ -40,7 +40,7 @@ class SickExperiment(BasicExperiment):
             model=model,
             args=finetune_args,
             train_dataset=self.train_ds,
-            eval_dataset=self.eval_dataset,
+            eval_dataset=self.eval_ds,
             tokenizer=tokenizer,
             compute_metrics=self._compute_metrics,
             # preprocess_logits_for_metrics=preprocess_logits_for_metrics
@@ -69,6 +69,9 @@ class SickExperiment(BasicExperiment):
         self.model = self.model.to(self.device)
         self.model.eval()
         test_dataloader = DataLoader(dataset=self.test_ds, batch_size=1, shuffle=False)
+
+        total_decoded_preds = []
+        total_decoded_labels = []
 
         with torch.no_grad():
             for idx, data in enumerate(tqdm(test_dataloader), 0):
@@ -121,8 +124,8 @@ class SickExperiment(BasicExperiment):
                     self.bertscore_metric2.add_batch(predictions=decoded_preds, references=decoded_labels2)
                     self.bertscore_metric3.add_batch(predictions=decoded_preds, references=decoded_labels3)
 
-                self.total_decoded_preds.append(decoded_preds)
-                self.total_decoded_labels.append(decoded_labels)
+                total_decoded_preds.append(decoded_preds)
+                total_decoded_labels.append(decoded_labels)
 
         bertscore_result = self.bertscore_metric.compute(lang="en", model_type="bert-base-uncased")
         result = self.metric.compute(use_stemmer=True)
@@ -145,7 +148,9 @@ class SickExperiment(BasicExperiment):
             result3 = {key: value.mid.fmeasure * 100 for key, value in result3.items()}
 
         self.logger.save_results(result)
-        self.logger.save_results(bertscore_result)
+        self.logger.save_results({"bert_score": bertscore_result})
+        # self.logger.save_results({"decoded_pred": total_decoded_preds})
+        # self.logger.save_results({"decoded_label": total_decoded_labels})
 
     def _freeze_weight(self):
         for param in self.model.parameters():
@@ -155,8 +160,8 @@ class SickExperiment(BasicExperiment):
         predictions, labels = eval_pred
         decoded_preds = self.tokenizer.batch_decode(predictions, skip_special_tokens=True)
         # Replace -100 in the labels as we can't decode them.
-        labels = np.where(labels != -100, labels, self._tokenizer.pad_token_id)
-        decoded_labels = self._tokenizer.batch_decode(labels, skip_special_tokens=True)
+        labels = np.where(labels != -100, labels, self.tokenizer.pad_token_id)
+        decoded_labels = self.tokenizer.batch_decode(labels, skip_special_tokens=True)
 
         # Rouge expects a newline after each sentence
         decoded_preds = ["\n".join(nltk.sent_tokenize(pred.strip())) for pred in decoded_preds]

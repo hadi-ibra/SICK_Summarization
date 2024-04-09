@@ -140,20 +140,32 @@ class SickExperiment(BasicExperiment):
         result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
         bertscore_result = sum(bertscore_result["f1"]) / len(bertscore_result["f1"])
 
+        print(bertscore_result)
+        print(result)
+
+        metric_to_save = {}
+        metric_to_save["rouge"] = result
+        metric_to_save["bert_score"] = bertscore_result
+
+        # self.logger.save_results({"decoded_pred": total_decoded_preds})
+        # self.logger.save_results({"decoded_label": total_decoded_labels})
+
         if self.is_test_ds_dialog_sum:
             bertscore_result2 = sum(bertscore_result2["f1"]) / len(bertscore_result2["f1"])
             bertscore_result3 = sum(bertscore_result3["f1"]) / len(bertscore_result3["f1"])
 
             result2 = {key: value.mid.fmeasure * 100 for key, value in result2.items()}
             result3 = {key: value.mid.fmeasure * 100 for key, value in result3.items()}
+            print(result2)
+            print(result3)
+            metric_to_save["rounge2_dialog_sum"] = result2
+            metric_to_save["rounge3_dialog_sum"] = result3
 
-        self.logger.save_results(result)
-        self.logger.save_results({"bert_score": bertscore_result})
-        # self.logger.save_results({"decoded_pred": total_decoded_preds})
-        # self.logger.save_results({"decoded_label": total_decoded_labels})
+        self.logger.save_results(metric_to_save)
+        self.logger.summary(metric_to_save)
 
-    def _freeze_weight(self):
-        for param in self.model.parameters():
+    def _freeze_weight(self, model):
+        for param in model.parameters():
             param.requires_grad = False
 
     def _compute_metrics(self, eval_pred):

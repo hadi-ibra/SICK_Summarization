@@ -29,6 +29,10 @@ class Logger(ABC, object):
         pass
 
     @abstractmethod
+    def summary(self, data: Dict[str, Any]) -> None:
+        pass
+
+    @abstractmethod
     def save_results(self, data: Dict[str, Any]) -> None:
         pass
 
@@ -49,6 +53,10 @@ class DummyLogger(Logger):
 
     @overrides
     def save_results(self, data: Dict[str, Any]) -> None:
+        pass
+
+    @overrides
+    def summary(self, data: Dict[str, Any]) -> None:
         pass
 
     @overrides
@@ -82,6 +90,10 @@ class BaseDecorator(Logger):
     @overrides
     def save_results(self, data: Dict[str, Any]) -> None:
         self._logger.save_results(data)
+
+    @overrides
+    def summary(self, data: Dict[str, Any]) -> None:
+        self._logger.summary(data)
 
     @overrides
     def finish(self) -> None:

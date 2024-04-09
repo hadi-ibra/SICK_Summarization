@@ -11,8 +11,6 @@ from src.logging.logger import BaseDecorator, Logger
 
 class WandbLoggerDecorator(BaseDecorator):
 
-    root = Path("wandb_checkpoint")
-
     def __init__(self, logger: Logger) -> None:
         super().__init__(logger)
         wandb.init(project=self.args.project, name=self.args.exp_name, config=vars(self.args))
@@ -23,6 +21,12 @@ class WandbLoggerDecorator(BaseDecorator):
         trainer.save_model(snapshot_tmp_path)
         wandb.save(snapshot_tmp_path.as_posix(), policy="now")
         self.logger.save(trainer)
+
+    @overrides
+    def summary(self, data: Dict[str, Any]) -> None:
+        for k, v in data.items():
+            wandb.summary[k] = v
+        self.logger.summary(data)
 
     @overrides
     def finish(self) -> None:

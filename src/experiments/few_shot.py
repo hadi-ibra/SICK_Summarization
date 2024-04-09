@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, List
 
 import numpy as np
 
@@ -23,13 +23,14 @@ class FewShotLearning(BasicExperiment):
 
     @overrides
     def train(self) -> None:
-        raise NotImplementedError(
-            "Training for an LLM is not implemented since the required hardware capabilieties are too high"
-        )
+        pass
+        # raise NotImplementedError(
+        #     "Training for an LLM is not implemented since the required hardware capabilieties are too high"
+        # )
 
     @overrides
     def test(self, **kwargs) -> None:
-        examples = self._get_examples()
+        examples = self._get_training_samples()
         base_prompt = self._gen_examples_template(examples)
 
         tokens = self.tokenizer.tokenize(str(base_prompt))
@@ -58,6 +59,7 @@ class FewShotLearning(BasicExperiment):
 
         metrics = self._compute_metrics(summaries)
         self.logger.save_results(metrics)
+        self.logger.summary(metrics)
 
     @overrides
     def save(self):
@@ -71,7 +73,7 @@ class FewShotLearning(BasicExperiment):
             examples.append((dialog, summary))
         return examples
 
-    def _gen_examples_template(training_examples: str) -> str:
+    def _gen_examples_template(self, training_examples: List[str]) -> str:
         header = "Summarize the chat dialog. Here you can find some examples:"
         tail = "Summarize the following chat dialog in one sentence.\nDIALOG:"
         examples = []

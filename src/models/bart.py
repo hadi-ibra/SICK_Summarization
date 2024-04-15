@@ -3,6 +3,7 @@ from transformers.models.bart.modeling_bart import *
 import sys
 sys.path.append('../')
 from src.utils.util import load_checkpoint
+
 #################################################################################################################################
 class BartModel_DualDecoder(BartPretrainedModel):
     def __init__(self, config: BartConfig):

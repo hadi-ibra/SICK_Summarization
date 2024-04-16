@@ -2,7 +2,7 @@ from argparse import Namespace
 from datetime import datetime as dt
 import enum
 import json
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 from abc import ABC, abstractmethod
 from overrides import overrides
 from typing import Any, Dict, Literal, Optional

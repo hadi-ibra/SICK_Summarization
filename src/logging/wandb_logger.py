@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from typing import Any, Dict
-from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 from datetime import datetime as dt
 from overrides import overrides
 import wandb

@@ -8,4 +8,3 @@ bert_score
 py7zr
 metrics
 overrides
-backports.zoneinfo

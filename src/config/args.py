@@ -64,6 +64,8 @@ def get_parser() -> argparse.ArgumentParser:
     # Training hyperparameters
     parser.add_argument("--epoch", type=int, default=20)
     parser.add_argument("--train_batch_size", type=int, default=20)
+    # idiom dataset
+    parser.add_argument('--idiom', type=bool, default=False)
     # parser.add_argument('--display_step',type=int, default=2000)
     parser.add_argument("--val_batch_size", type=int, default=4)
     parser.add_argument("--test_batch_size", type=int, default=1)

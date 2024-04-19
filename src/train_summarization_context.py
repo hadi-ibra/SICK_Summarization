@@ -127,6 +127,7 @@ def get_dataset(args: argparse.Namespace):
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
+            idiom = args.idiom
         )
         train_dataset = total_dataset.getTrainData()
         eval_dataset = total_dataset.getEvalData()
@@ -142,6 +143,7 @@ def get_dataset(args: argparse.Namespace):
             supervision_relation=args.supervision_relation,
             sentence_transformer=args.use_sentence_transformer,
             roberta=args.use_roberta,
+            idiom = args.idiom
         )
         train_dataset = total_dataset.getTrainData()
         eval_dataset = total_dataset.getEvalData()
@@ -157,6 +159,7 @@ def get_dataset(args: argparse.Namespace):
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
+            idiom = args.idiom
         )
         train_dataset = torch.utils.data.Subset(total_dataset.getTrainData(), [i for i in range(10)])
         eval_dataset = torch.utils.data.Subset(total_dataset.getEvalData(), [i for i in range(5)])

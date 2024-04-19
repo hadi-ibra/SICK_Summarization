@@ -54,6 +54,7 @@ def get_datasets(args, tokenizer):
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
+            idiom = args.idiom
         )
         train_dataset = total_dataset.getTrainData()
         eval_dataset = total_dataset.getEvalData()
@@ -69,6 +70,7 @@ def get_datasets(args, tokenizer):
             supervision_relation=args.supervision_relation,
             sentence_transformer=args.use_sentence_transformer,
             roberta=args.use_roberta,
+            idiom = args.idiom
         )
         train_dataset = total_dataset.getTrainData()
         eval_dataset = total_dataset.getEvalData()
@@ -84,6 +86,7 @@ def get_datasets(args, tokenizer):
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
+            idiom = args.idiom
         )
         train_dataset = torch.utils.data.Subset(total_dataset.getTrainData(), [i for i in range(10)])
         eval_dataset = torch.utils.data.Subset(total_dataset.getEvalData(), [i for i in range(5)])
@@ -132,6 +135,17 @@ def load_pretrained_model(args: Namespace, tokenizer, device):
             torch_dtype=torch.float16,
             device_map=device,
         )
+    elif args.framework == FrameworkOption.IDIOM_SICK:
+        pretrained_model = AutoModelForSeq2SeqLM.from_pretrained(args.model_name, device_map=device)
+        pretrained_model.resize_token_embeddings(len(tokenizer))
+        pretrained_model.gradient_checkpointing_enable()
+        return pretrained_model
+    elif args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS:
+        pretrained_model = BartForConditionalGeneration_DualDecoder.from_pretrained(args.model_name)
+        pretrained_model.resize_token_embeddings(len(tokenizer))
+        pretrained_model.gradient_checkpointing_enable()
+        pretrained_model = pretrained_model.to(device)
+        return pretrained_model
     else:
         raise NotImplementedError(f"The model {args.model_name} is not implemented")
 
@@ -160,92 +174,69 @@ def get_logger(args: Namespace) -> Logger:
 
     return logger
 
+def get_config(args: Namespace) -> Seq2SeqTrainingArguments:
+  """Returns the base configuration for SICK-related training."""
+  return Seq2SeqTrainingArguments(
+        output_dir=args.finetune_weight_path,
+        overwrite_output_dir=True,
+        do_train=True,
+        do_eval=False,
+        do_predict=False,
+        logging_strategy="epoch", 
+        save_strategy="epoch", 
+        per_device_train_batch_size=args.train_batch_size,
+        per_device_eval_batch_size=args.val_batch_size,x
+        learning_rate=args.init_lr,
+        weight_decay=args.weight_decay,
+        adam_beta1=args.adam_beta1,
+        adam_beta2=args.adam_beta2,
+        adam_epsilon=args.adam_eps,
+        num_train_epochs=args.epoch,
+        max_grad_norm=0.1,
+        gradient_accumulation_steps=2,
+        gradient_checkpointing=True,
+        lr_scheduler_type="polynomial",
+        warmup_steps=args.warm_up,
+        save_total_limit=1,
+        seed=args.seed,
+
+        greater_is_better=True,
+        report_to=["wandb"],
+    )
 
 def get_finetune_args(args: Namespace) -> Seq2SeqTrainingArguments:
     if args.framework == FrameworkOption.BASIC_SICK:
-        return Seq2SeqTrainingArguments(
-            output_dir=args.finetune_weight_path,
-            overwrite_output_dir=True,
-            do_train=True,
-            do_eval=True,
-            do_predict=True,
-            evaluation_strategy="epoch",
-            logging_strategy="epoch",
-            save_strategy="epoch",
-            # eval_steps=1,
-            # logging_steps=1,
-            # save_steps=1,
-            per_device_train_batch_size=args.train_batch_size,
-            per_device_eval_batch_size=args.val_batch_size,
-            learning_rate=args.init_lr,
-            weight_decay=args.weight_decay,
-            adam_beta1=args.adam_beta1,
-            adam_beta2=args.adam_beta2,
-            adam_epsilon=args.adam_eps,
-            num_train_epochs=args.epoch,
-            max_grad_norm=0.1,
-            # label_smoothing_factor=0.1,
-            gradient_accumulation_steps=2,
-            gradient_checkpointing=True,
-            # max_steps= ,
-            lr_scheduler_type="polynomial",
-            # warmup_ratio= ,
-            warmup_steps=args.warm_up,
-            save_total_limit=1,
-            # fp16=True,
-            # in paper seed used is 516
-            seed=args.seed,
-            load_best_model_at_end=True,
-            predict_with_generate=True,
-            prediction_loss_only=False,
-            generation_max_length=100,
-            generation_num_beams=5,
-            metric_for_best_model="eval_rouge1",
-            greater_is_better=True,
-            report_to=["wandb"],
-        )
+        config = get_config(args)
+        config.load_best_model_at_end=True,
+        config.predict_with_generate=True,
+        config.prediction_loss_only=False,
+        config.generation_max_length=100,
+        config.generation_num_beams=5,
+        config.metric_for_best_model="eval_rouge1",
+        config.do_eval=True,
+        config.do_predict=True,
+        config.evaluation_strategy="epoch"
+        return config
     elif args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS:
-        return Seq2SeqTrainingArguments(
-            output_dir=args.finetune_weight_path,
-            overwrite_output_dir=True,
-            do_train=True,
-            do_eval=False,
-            do_predict=False,
-            # evaluation_strategy='epoch',
-            # eval_steps=args.display_step,
-            per_device_train_batch_size=args.train_batch_size,
-            # per_device_eval_batch_size = args.val_batch_size,
-            learning_rate=args.init_lr,
-            weight_decay=args.weight_decay,
-            adam_beta1=args.adam_beta1,
-            adam_beta2=args.adam_beta2,
-            adam_epsilon=args.adam_eps,
-            num_train_epochs=args.epoch,
-            max_grad_norm=0.1,
-            # label_smoothing_factor=0.1,
-            gradient_accumulation_steps=2,
-            gradient_checkpointing=True,
-            # max_steps= ,
-            lr_scheduler_type="polynomial",
-            # warmup_ratio= ,
-            warmup_steps=args.warm_up,
-            logging_strategy="epoch",
-            # logging_steps=args.display_step,
-            save_strategy="epoch",
-            # save_steps=args.display_step,
-            save_total_limit=1,
-            # fp16=True,
-            # in paper seed used is 516
-            seed=args.seed,
-            # load_best_model_at_end=True,
-            # predict_with_generate=True,
-            # prediction_loss_only=False,
-            # generation_max_length=100,
-            # generation_num_beams=5,
-            # metric_for_best_model='eval_rouge2',
-            greater_is_better=True,
-            report_to=["wandb"],
-        )
+        return get_config(args)
+   
+    elif args.framework == FrameworkOption.IDIOM_SICK:
+        config = get_config(args)
+        config.load_best_model_at_end=True,
+        config.predict_with_generate=True,
+        config.prediction_loss_only=False,
+        config.generation_max_length=100,
+        config.generation_num_beams=5,
+        config.metric_for_best_model="eval_rouge1",
+        config.do_eval=True,
+        config.do_predict=True,
+        config.evaluation_strategy="epoch"
+        config.idiom = args.idiom
+        return config
+    elif args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS:
+        config = get_config(args)
+        config.idiom = args.idiom
+        return config
     else:
         raise NotImplementedError(f"The finetune args for framework {args.framework} is not implemented")
 
@@ -278,7 +269,7 @@ def main():
                 device=device,
                 logger=logger,
             )
-        elif args.framework == FrameworkOption.BASIC_SICK or args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS:
+        elif args.framework == FrameworkOption.BASIC_SICK or args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS or args.framework == FrameworkOption.IDIOM_SICK or args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS:
             finetune_args = get_finetune_args(args)
             test_kwargs["num_beams"] = args.num_beams
             experiment = SickExperiment(

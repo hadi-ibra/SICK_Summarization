@@ -1,0 +1,8 @@
+PROJECT_NAME: Text Summarization
+FRAMEWORK: BASIC_SICK
+EXPERIMENT_NAME: Basic Sick
+PHASE: TRAIN
+DATASET_NAME: SAMSUM
+MODEL_NAME: BART_LARGE_XSUM
+FOLDER_NAME: ./new_weights_sick_best
+MODEL_PATH: /content/drive/MyDrive/SICK_Summarization/src/new_weights_sick_best

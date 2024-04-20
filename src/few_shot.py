@@ -14,13 +14,22 @@ from data.dataset import SamsumDataset_total, DialogsumDataset_total
 import json
 from rouge import Rouge
 from bert_score import score
-
+import yaml
 nltk.download("punkt")
+
+
+
+with open('config/secret.yaml', 'r') as file:
+    config_data = yaml.safe_load(file)
+
+
+
+MY_TOKEN = config_data['WANDB_API_KEY']
 
 
 os.environ["WANDB_SILENT"] = "true"
 
-MY_TOKEN = "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"
+# MY_TOKEN = "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"
 
 SEED = 42
 

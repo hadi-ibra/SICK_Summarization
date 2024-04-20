@@ -3,7 +3,7 @@ src/data/COMET_data/
 src/data/DialogSum_Data/
 
 src/models/__pycache__/
-
+src/config/secret.yml
 src/__pycache__/
 src/new_weights_paracomet/
 src/new_weights_paracomet_best/

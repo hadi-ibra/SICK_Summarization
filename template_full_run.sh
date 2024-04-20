@@ -13,17 +13,28 @@ cd SICK_Summarization/
 pip install -r requirements.txt
 pip install -U spacy
 pip install accelerate -U
+pip install backports.zoneinfo
 python -m spacy download en_core_web_sm
-apt-get install yq
+
 
 # Step 3: 
 # login inside wandb with api key if needed for logging (be careful to add/adjust program params accordingly with this) 
 wandb_api_key=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["WANDB_API_KEY"])')
-echo $wandb_api_key
 
 echo "[SCRIPT]: Login in wandb"
 wandb login 
 echo "[SCRIPT]: Login done"
+
+# Extract values from the config files
+hugging_face_token=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["HUGGING_FACE_TOKEN"])')
+project_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["PROJECT_NAME"])')
+framework=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["FRAMEWORK"])')
+exp_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["EXPERIMENT_NAME"])')
+phase=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["PHASE"])')
+dataset_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["DATASET_NAME"])')
+model_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["MODEL_NAME"])')
+folder_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["FOLDER_NAME"])')
+
 
 # Step 4: 
 # the main entry point for the repo is in run.py. Configure the run with the provided argument parser.
@@ -31,19 +42,6 @@ echo "[SCRIPT]: Login done"
 # Note 2: if needed run python3 src/run.py --help to recive guide on the parameters available
 #!/bin/bash
 
-hugging_face_token=$(grep '^HUGGING_FACE_TOKEN:' src/config/params.yml | awk '{print $2}')
-
-echo "API Key: $hugging_face_token"
-
-project_name=$(grep '^PROJECT_NAME:' src/config/params.yml | awk '{print $2}')
-framework=$(grep '^FRAMEWORK:' src/config/params.yml | awk '{print $2}')
-exp_name=$(grep '^EPERIMENT_NAME:' src/config/params.yml | awk '{print $2}')
-phase=$(grep '^PHASE:' src/config/params.yml | awk '{print $2}')
-dataset_name=$(grep '^DATASET_NAME:' src/config/params.yml | awk '{print $2}')
-model_name=$(grep '^MODEL_NAME:' src/config/params.yml | awk '{print $2}')
-folder_name=$(grep '^FOLDER_NAME:' src/config/params.yml | awk '{print $2}')
-
-flasdjkflds
 
 echo "[SCRIPT]: Starting the run"
 PARAMS=(

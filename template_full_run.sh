@@ -45,17 +45,17 @@ folder_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/pa
 
 echo "[SCRIPT]: Starting the run"
 PARAMS=(
-    --hugging_face_token $hugging_face_token
+    --hugging_face_token "$hugging_face_token"
     # project name in wandb
-    --project $project_name # look at project available on wandb. If wandb is not used put whatever you want
-    --framework $framework # (see src/config/enums.py/FrameworkOption)
-    --exp_name $exp_name # it will used for the run in wandb and as part of the name for the local logger (after data)
+    --project "$project_name" # look at project available on wandb. If wandb is not used put whatever you want
+    --framework "$framework" # (see src/config/enums.py/FrameworkOption)
+    --exp_name "$exp_name" # it will used for the run in wandb and as part of the name for the local logger (after data)
     --seed 516
-    --phase $phase # (see enums.py/ExperimentPhase - for training + test use "all")
-    --dataset_name $dataset_name # (see src/config/enums.py/DatasetOptions)
-    --model_name $model_name # (see src/config/enums.py/ModelCheckpointOptions)
-    --finetune_weight_path $folder_name # Path/Folder where is going to be stored weights while training
-    --best_finetune_weight_path $folder_name # Path/Folder where is going to be stored weights after training finished
+    --phase "$phase" # (see enums.py/ExperimentPhase - for training + test use "all")
+    --dataset_name "$dataset_name" # (see src/config/enums.py/DatasetOptions)
+    --model_name "$model_name" # (see src/config/enums.py/ModelCheckpointOptions)
+    --finetune_weight_path "$folder_name" # Path/Folder where is going to be stored weights while training
+    --best_finetune_weight_path "$folder_name" # Path/Folder where is going to be stored weights after training finished
     --epoch 1
     --use_paracomet True
     --relation "xIntent"

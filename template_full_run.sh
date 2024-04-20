@@ -28,7 +28,7 @@ echo "[SCRIPT]: Login done"
 # Note 2: if needed run python3 src/run.py --help to recive guide on the parameters available
 #!/bin/bash
 
-hugging_face_token=$(grep '^HUGGING_FACE_TOKEN:' src/config/config.yml | awk '{print $2}')
+hugging_face_token=$(grep '^HUGGING_FACE_TOKEN:' src/config/params.yml | awk '{print $2}')
 
 echo "API Key: $hugging_face_token"
 

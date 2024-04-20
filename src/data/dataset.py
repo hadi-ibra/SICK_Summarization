@@ -878,6 +878,7 @@ class DialogsumDataset_total:
         roberta=False,
         supervision_relation="isAfter",
         sentence_transformer=False,
+        idiom=False
     ):
         self.train_dataset = DialogsumDataset(
             encoder_max_len,

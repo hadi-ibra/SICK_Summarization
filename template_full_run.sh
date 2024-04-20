@@ -27,13 +27,13 @@ echo "[SCRIPT]: Login done"
 
 # Extract values from the config files
 hugging_face_token=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["HUGGING_FACE_TOKEN"])')
-project_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["PROJECT_NAME"])')
-framework=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["FRAMEWORK"])')
-exp_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["EXPERIMENT_NAME"])')
-phase=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["PHASE"])')
-dataset_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["DATASET_NAME"])')
-model_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["MODEL_NAME"])')
-folder_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["FOLDER_NAME"])')
+project_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["PROJECT_NAME"])')
+framework=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["FRAMEWORK"])')
+exp_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["EXPERIMENT_NAME"])')
+phase=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["PHASE"])')
+dataset_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["DATASET_NAME"])')
+model_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["MODEL_NAME"])')
+folder_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["FOLDER_NAME"])')
 
 
 # Step 4: 

@@ -25,30 +25,33 @@ echo "[SCRIPT]: Login done"
 # the main entry point for the repo is in run.py. Configure the run with the provided argument parser.
 # Note 1: for enums use the value of them (e.g. for framework use "few_shot_learning" and not "FEW_SHOT").
 # Note 2: if needed run python3 src/run.py --help to recive guide on the parameters available
-project_name=$(grep '^PROJECT_NAME:' src/config/params.yml | awk '{print $2}')
-framework=$(grep '^FRAMEWORK:' src/config/params.yml | awk '{print $2}')
-exp_name=$(grep '^EPERIMENT_NAME:' src/config/params.yml | awk '{print $2}')
-phase=$(grep '^PHASE:' src/config/params.yml | awk '{print $2}')
-dataset_name=$(grep '^DATASET_NAME:' src/config/params.yml | awk '{print $2}')
-model_name=$(grep '^MODEL_NAME:' src/config/params.yml | awk '{print $2}')
-model_path=$(grep '^MODEL_PATH:' src/config/params.yml | awk '{print $2}')
+hugging_face_token=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["HUGGING_FACE_TOKEN"])')
+project_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["PROJECT_NAME"])')
+framework=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["FRAMEWORK"])')
+exp_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["EXPERIMENT_NAME"])')
+phase=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["PHASE"])')
+dataset_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["DATASET_NAME"])')
+model_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["MODEL_NAME"])')
+model_path=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["MODEL_PATH"])')
+idiom_check=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["IDIOM"])')
 
 
 echo "[SCRIPT]: Starting the run"
 PARAMS=(
-    --hugging_face_token <HUGGING FACE KEY>
+    --hugging_face_token "$hugging_face_token"
     # project name in wandb
-    --project $project_name # look at project available on wandb. If wandb is not used put whatever you want
-    --framework $framework # (see src/config/enums.py/FrameworkOption)
-    --exp_name $exp_name # it will used for the run in wandb and as part of the name for the local logger (after data)
+    --project "$project_name" # look at project available on wandb. If wandb is not used put whatever you want
+    --framework "$framework" # (see src/config/enums.py/FrameworkOption)
+    --exp_name "$exp_name" # it will used for the run in wandb and as part of the name for the local logger (after data)
     --seed 516
     --phase test
-    --dataset_name $dataset_name # (see src/config/enums.py/DatasetOptions)
+    --dataset_name "$dataset_name" # (see src/config/enums.py/DatasetOptions)
     --load_checkpoint True
-    --model_checkpoint $model_path # Path/Folder where the model is saved
+    --model_checkpoint "$model_path" # Path/Folder where the model is saved
     --use_paracomet True
     --relation "xIntent"
     --use_sentence_transformer True
+    --idiom "$idiom_check"
 )
 
 python3 run.py "${PARAMS[@]}"

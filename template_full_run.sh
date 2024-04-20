@@ -34,6 +34,7 @@ phase=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.y
 dataset_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["DATASET_NAME"])')
 model_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["MODEL_NAME"])')
 folder_name=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["FOLDER_NAME"])')
+idiom_check=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/params.yml")); print(data["IDIOM"])')
 
 
 # Step 4: 
@@ -60,6 +61,7 @@ PARAMS=(
     --use_paracomet True
     --relation "xIntent"
     --use_sentence_transformer True
+    --idiom "$idiom_check"
 )
 
 python3 run.py "${PARAMS[@]}"

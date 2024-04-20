@@ -231,11 +231,11 @@ def get_finetune_args(args: Namespace) -> Seq2SeqTrainingArguments:
         config.do_eval=True,
         config.do_predict=True,
         config.evaluation_strategy="epoch"
-        config.idiom = True
+        config.idiom = args.idiom
         return config
     elif args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS:
         config = get_config(args)
-        config.idiom = True
+        config.idiom = args.idiom
         return config
     else:
         raise NotImplementedError(f"The finetune args for framework {args.framework} is not implemented")

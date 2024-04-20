@@ -2,6 +2,7 @@ PROJECT_NAME: Text Summarization
 FRAMEWORK: basic_sick
 EXPERIMENT_NAME: Basic Sick
 PHASE: train
+IDIOM: False
 DATASET_NAME: samsum
 MODEL_NAME: facebook/bart-large-xsum
 FOLDER_NAME: ./new_weights_sick_best

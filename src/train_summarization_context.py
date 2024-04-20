@@ -13,7 +13,6 @@ from datasets import load_metric
 from dataset import SamsumDataset_total, DialogsumDataset_total
 
 import nltk
-import yaml
 
 nltk.download("punkt")
 
@@ -21,13 +20,7 @@ nltk.download("punkt")
 os.environ["WANDB_SILENT"] = "true"
 
 
-with open('config/secret.yaml', 'r') as file:
-    config_data = yaml.safe_load(file)
-
-
-
-MY_TOKEN = config_data['WANDB_API_KEY']
-# MY_TOKEN = "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"
+MY_TOKEN = "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"
 
 
 def get_args() -> argparse.Namespace:

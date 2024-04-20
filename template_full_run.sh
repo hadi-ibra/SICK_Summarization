@@ -18,8 +18,11 @@ apt-get install yq
 
 # Step 3: 
 # login inside wandb with api key if needed for logging (be careful to add/adjust program params accordingly with this) 
+wandb_api_key=$(python3 -c 'import yaml; data = yaml.safe_load(open("src/config/secret.yml")); print(data["WANDB_API_KEY"])')
+echo $wandb_api_key
+
 echo "[SCRIPT]: Login in wandb"
-# wandb login <API_KEY>
+wandb login 
 echo "[SCRIPT]: Login done"
 
 # Step 4: 

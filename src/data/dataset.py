@@ -403,7 +403,7 @@ class SamsumDataset_total:
 
 def custom_load_dataset(type, split):
     if type == "dialogsum":
-        dir = f"src/data/COMET_data/paracomet/dialogue/dialogsum/s/dialogsum.{split}.jsonl"
+        dir = f"src/data/DialogSum_Data/dialogsum.{split}.jsonl"
         data = {"dialogue": [], "summary": [], "id": []}
         with open(dir, "r") as json_file:
             json_list = list(json_file)

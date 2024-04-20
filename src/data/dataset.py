@@ -518,11 +518,16 @@ class DialogsumDataset(Dataset):
                 ###########################
                 # CODE FOR PARACOMET
                 ###########################
-
-                with open(
-                    f"../data/COMET_data/paracomet/dialogue/dialogsum/dialog_{self.split_type}_split5_collated.json"
-                ) as f:
-                    self.dialogue_comet_inference = json.load(f)
+                
+                
+                if self.idiom:
+                    with open(f"../data/COMET_data/paracomet/dialogue/dialogsum/idioms/preprocessed_{self.split_type}_data.json") as f:
+                        self.dialogue_comet_inference = json.load(f)
+                else:
+                    with open(
+                        f"../data/COMET_data/paracomet/dialogue/dialogsum/dialog_{self.split_type}_split5_collated.json"
+                    ) as f:
+                        self.dialogue_comet_inference = json.load(f)
 
                 if self.roberta:
                     with open(

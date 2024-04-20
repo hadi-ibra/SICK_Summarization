@@ -892,6 +892,7 @@ class DialogsumDataset_total:
             roberta=roberta,
             supervision_relation=supervision_relation,
             sentence_transformer=sentence_transformer,
+            idiom=idiom
         )
         self.eval_dataset = DialogsumDataset(
             encoder_max_len,
@@ -905,6 +906,7 @@ class DialogsumDataset_total:
             roberta=roberta,
             supervision_relation=supervision_relation,
             sentence_transformer=sentence_transformer,
+            idiom=idiom
         )
         self.test_dataset = DialogsumDataset(
             encoder_max_len,
@@ -918,6 +920,7 @@ class DialogsumDataset_total:
             roberta=roberta,
             supervision_relation=supervision_relation,
             sentence_transformer=sentence_transformer,
+            idiom=idiom
         )
         print(self.train_dataset.data_len)
 

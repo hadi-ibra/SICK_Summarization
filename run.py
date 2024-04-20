@@ -185,7 +185,7 @@ def get_config(args: Namespace) -> Seq2SeqTrainingArguments:
         logging_strategy="epoch", 
         save_strategy="epoch", 
         per_device_train_batch_size=args.train_batch_size,
-        per_device_eval_batch_size=args.val_batch_size,x
+        per_device_eval_batch_size=args.val_batch_size,
         learning_rate=args.init_lr,
         weight_decay=args.weight_decay,
         adam_beta1=args.adam_beta1,

@@ -170,6 +170,7 @@ class SickExperiment(BasicExperiment):
 
     def _compute_metrics(self, eval_pred):
         predictions, labels = eval_pred
+        predictions = np.where(predictions != -100, predictions, self.tokenizer.pad_token_id)
         decoded_preds = self.tokenizer.batch_decode(predictions, skip_special_tokens=True)
         # Replace -100 in the labels as we can't decode them.
         labels = np.where(labels != -100, labels, self.tokenizer.pad_token_id)

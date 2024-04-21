@@ -1,14 +1,7 @@
-import os
-
-import sys
-sys.path.append('../')
 import argparse
-import random
-import json
 import nltk
 import numpy as np
 import torch
-import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader, SequentialSampler
 from transformers import AutoTokenizer
 from transformers import AutoConfig, AutoModelForSeq2SeqLM
@@ -17,8 +10,9 @@ from datasets import load_metric
 import wandb
 from data.dataset import SamsumDataset_total, DialogsumDataset_total
 from models.bart import BartForConditionalGeneration_DualDecoder
-from src.trainer import DualDecoderTrainer
+from trainer import DualDecoderTrainer
 
+nltk.download("punkt")
 
 # Set Argument Parser
 parser = argparse.ArgumentParser()
@@ -66,14 +60,14 @@ args = parser.parse_args()
 print('######################################################################')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('Device:', device)
-print('Current cuda device:', torch.cuda.current_device())
-print('Count of using GPUs:', torch.cuda.device_count())
-print(torch.cuda.get_device_name())
+#print('Current cuda device:', torch.cuda.current_device())
+#print('Count of using GPUs:', torch.cuda.device_count())
+#print(torch.cuda.get_device_name())
 print('######################################################################')
 
 
 # Start WANDB Log (Set Logging API)
-wandb.init(project="ICSK4AS", reinit=True, entity='icsk4as')
+#wandb.init(project="ICSK4AS", reinit=True, entity='icsk4as')
 
 
 # Define Global Values
@@ -126,7 +120,7 @@ if args.dataset_name not in dataset_list:
 
 
 # Set metric
-metric = load_metric("../utils/rouge.py")
+metric = load_metric("src/utils/rouge.py")
 
 # Load Tokenizer associated to the model
 tokenizer = AutoTokenizer.from_pretrained(args.model_name)
@@ -147,6 +141,11 @@ elif args.dataset_name=='dialogsum':
     train_dataset = total_dataset.getTrainData()
     eval_dataset = total_dataset.getEvalData()
     test_dataset = total_dataset.getTestData()
+elif args.dataset_name=='samsum_debug':
+    total_dataset = SamsumDataset_total(args.encoder_max_len,args.decoder_max_len,tokenizer,extra_context=True,paracomet=args.use_paracomet,relation=args.relation,supervision_relation=args.supervision_relation,roberta=args.use_roberta, sentence_transformer=args.use_sentence_transformer)
+    train_dataset = torch.utils.data.Subset(total_dataset.getTrainData(), [i for i in range(10)])
+    eval_dataset = torch.utils.data.Subset(total_dataset.getEvalData(), [i for i in range(5)])
+    test_dataset = torch.utils.data.Subset(total_dataset.getTestData(), [i for i in range(5)])
 
 print('######################################################################')
 print('Training Dataset Size is : ')
@@ -202,7 +201,7 @@ finetune_args = Seq2SeqTrainingArguments(
     save_strategy= "epoch",
     #save_steps=args.display_step,
     save_total_limit=1,
-    fp16=True,
+    #fp16=True,
     seed = 516,
     #load_best_model_at_end=True,
     #predict_with_generate=True,
@@ -210,8 +209,8 @@ finetune_args = Seq2SeqTrainingArguments(
     #generation_max_length=100,
     #generation_num_beams=5,
     #metric_for_best_model='eval_rouge2',
-    greater_is_better=True,
-    report_to = 'wandb',
+    greater_is_better=True
+    #report_to = 'wandb',
 )
 
 def compute_metrics(eval_pred):
@@ -284,4 +283,4 @@ with open(args.test_output_file_name,"w") as f:
         f.write(i.replace("\n","")+"\n")
 """
 # END WANDB log
-wandb.finish()
+#wandb.finish()

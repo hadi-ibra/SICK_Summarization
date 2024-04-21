@@ -1,8 +1,10 @@
-transformers==4.13.0
+transformers
 nltk
 datasets
 wandb
 rouge_score
+rouge
 bert_score
 py7zr
 metrics
+overrides

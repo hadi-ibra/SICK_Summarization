@@ -1,10 +1,3 @@
-import os
-
-#os.environ['CUDA_DEVICE_ORDER']='PCI_BUS_ID'
-#os.environ['CUDA_VISIBLE_DEVICES']="1"
-
-import sys
-sys.path.append('../')
 import nltk
 import numpy as np
 #import tdqm
@@ -17,6 +10,8 @@ from datasets import load_metric
 from data.dataset import SamsumDataset_total, DialogsumDataset_total, MediasumDataset_total, TweetsummDataset_total
 from models.bart import BartForConditionalGeneration_DualDecoder, BartForConditionalGeneration_DualHead
 from tqdm import tqdm
+
+nltk.download("punkt")
 
 # Set Argument Parser
 parser = argparse.ArgumentParser()
@@ -107,9 +102,9 @@ finetune_model.eval()
 
 
 # Set metric
-metric = load_metric("../utils/rouge.py")
-metric2 = load_metric("../utils/rouge.py")
-metric3 = load_metric("../utils/rouge.py")
+metric = load_metric("src/utils/rouge.py")
+metric2 = load_metric("src/utils/rouge.py")
+metric3 = load_metric("src/utils/rouge.py")
 
 bertscore_metric = load_metric("bertscore",lang='en',model_type='bert-base-uncased')
 if args.dataset_name=='dialogsum':

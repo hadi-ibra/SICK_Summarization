@@ -14,7 +14,6 @@ from data.dataset import SamsumDataset_total, DialogsumDataset_total
 import json
 from rouge import Rouge
 from bert_score import score
-
 nltk.download("punkt")
 
 

@@ -1,0 +1,36 @@
+'0': {'sentence': 'Tim said "Hi, what\'s up?" (greeting)', # Added discourse marker label
+'<|xIntent|>': ['to meet someone', ...], # ... (unchanged)
+
+}
+
+Idiom Mapping or Annotation:
+
+Method idioms with their meaning:
+
+- Identify Idioms: identify potential idioms within your dataset sentences using pertained model(imranraad/idiom-xlm-roberta )
+- Meaning Mapping: Create a dictionary that maps identified idioms to their corresponding meanings. You can build this manually or use online idiom dictionary APIs (be cautious of their reliability).
+- Replace or Annotate: Choose your replacement strategy. You can either directly replace the idiom with its meaning within the sentence or add an annotation field specifying the meaning alongside the original idiom.
+
+Example with idiom Annotation:
+'0': {'sentence': 'Tim said "Kicked the bucket" (idiom: died)', # Idiom with meaning annotation
+'<|xIntent|>': ['to meet someone', ...], # ... (unchanged)
+... # Other fields remain the same
+'<|idiom_meaning|>': 'died' # New field for idiom meaning
+}
+
+Example with Direct Idiom replacement Replacement:
+
+'0': {'sentence': 'Tim said "Kicked the bucket" (died)', # Idiom replaced with meaning
+'<|xIntent|>': ['to meet someone', ...], # ... (unchanged)
+... # Other fields remain the same
+}
+
+compare similarity of detected idioms in the sentences with the idioms in the model and add it as a context
+and fine tune idiom on sick and sick ++ and then run inference on both
+
+
+save weights for sick model 4 epochs
+
+config folder
+arg.py for sick model and sick ++
+summarization context

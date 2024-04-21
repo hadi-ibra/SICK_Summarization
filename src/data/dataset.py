@@ -1,6 +1,7 @@
 import json
 import pickle
-from tkinter import dialog
+
+# from tkinter import dialog
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader, SequentialSampler
@@ -26,11 +27,13 @@ class SamsumDataset(Dataset):
         roberta=False,
         sentence_transformer=False,
         is_llm=False,
+        idiom=False,
     ):
         self.encoder_max_len = encoder_max_len
         self.decoder_max_len = decoder_max_len
         self.split_type = split_type
         self.tokenizer = tokenizer
+        self.idiom = idiom
 
         self.extra_context = extra_context
         self.extra_supervision = extra_supervision
@@ -80,8 +83,13 @@ class SamsumDataset(Dataset):
 
             else:
 
-                with open(f"{paracomet_samsum_dialog_path}/dialog_{self.split_type}_split5_collated.json") as f:
-                    self.dialogue_comet_inference = json.load(f)
+                if self.idiom:
+                    print("IDIOM Augmented Data")
+                    with open(f"{paracomet_samsum_dialog_path}/idioms/preprocessed_{self.split_type}_data.json") as f:
+                        self.dialogue_comet_inference = json.load(f)
+                else:
+                    with open(f"{paracomet_samsum_dialog_path}/dialog_{self.split_type}_split5_collated.json") as f:
+                        self.dialogue_comet_inference = json.load(f)
                 if self.roberta:
                     print("ROBERTA ON!")
                     with open(
@@ -336,6 +344,7 @@ class SamsumDataset_total:
         roberta=False,
         sentence_transformer=False,
         is_llm=False,
+        idiom=False,
     ):
         self.train_dataset = SamsumDataset(
             encoder_max_len,
@@ -350,6 +359,7 @@ class SamsumDataset_total:
             roberta=roberta,
             sentence_transformer=sentence_transformer,
             is_llm=is_llm,
+            idiom=idiom,
         )
         self.eval_dataset = SamsumDataset(
             encoder_max_len,
@@ -364,6 +374,7 @@ class SamsumDataset_total:
             roberta=roberta,
             sentence_transformer=sentence_transformer,
             is_llm=is_llm,
+            idiom=idiom,
         )
         self.test_dataset = SamsumDataset(
             encoder_max_len,
@@ -378,6 +389,7 @@ class SamsumDataset_total:
             roberta=roberta,
             sentence_transformer=sentence_transformer,
             is_llm=is_llm,
+            idiom=idiom,
         )
 
     def getTrainData(self):
@@ -392,7 +404,7 @@ class SamsumDataset_total:
 
 def custom_load_dataset(type, split):
     if type == "dialogsum":
-        dir = f".src/data/DialogSum_Data/dialogsum.{split}.jsonl"
+        dir = f"./src/data/DialogSum_Data/dialogsum.{split}.jsonl"
         data = {"dialogue": [], "summary": [], "id": []}
         with open(dir, "r") as json_file:
             json_list = list(json_file)
@@ -437,12 +449,13 @@ class DialogsumDataset(Dataset):
         supervision_relation="isAfter",
         roberta=False,
         sentence_transformer=False,
+        idiom=False,
     ):
         self.encoder_max_len = encoder_max_len
         self.decoder_max_len = decoder_max_len
         self.split_type = split_type
         self.tokenizer = tokenizer
-
+        self.idiom = idiom
         self.extra_context = extra_context
         self.extra_supervision = extra_supervision
 
@@ -482,9 +495,14 @@ class DialogsumDataset(Dataset):
                 ###########################
                 # CODE FOR COMET
                 ###########################
-
-                with open(f"./src/data/COMET_data/comet/dialogue/dialogsum/comet_{self.split_type}.json") as f:
-                    self.dialogue_comet_inference = json.load(f)
+                if self.idiom:
+                    with open(
+                        f"./src/data/COMET_data/comet/dialogue/dialogsum/idioms/preprocessed_{self.split_type}_data.json"
+                    ) as f:
+                        self.dialogue_comet_inference = json.load(f)
+                else:
+                    with open(f"./src/data/COMET_data/comet/dialogue/dialogsum/comet_{self.split_type}.json") as f:
+                        self.dialogue_comet_inference = json.load(f)
 
                 if self.roberta:
                     with open(
@@ -504,10 +522,16 @@ class DialogsumDataset(Dataset):
                 # CODE FOR PARACOMET
                 ###########################
 
-                with open(
-                    f"./src/data/COMET_data/paracomet/dialogue/dialogsum/dialog_{self.split_type}_split5_collated.json"
-                ) as f:
-                    self.dialogue_comet_inference = json.load(f)
+                if self.idiom:
+                    with open(
+                        f"./src/data/COMET_data/paracomet/dialogue/dialogsum/idioms/preprocessed_{self.split_type}_data.json"
+                    ) as f:
+                        self.dialogue_comet_inference = json.load(f)
+                else:
+                    with open(
+                        f"./src/data/COMET_data/paracomet/dialogue/dialogsum/dialog_{self.split_type}_split5_collated.json"
+                    ) as f:
+                        self.dialogue_comet_inference = json.load(f)
 
                 if self.roberta:
                     with open(
@@ -861,6 +885,7 @@ class DialogsumDataset_total:
         roberta=False,
         supervision_relation="isAfter",
         sentence_transformer=False,
+        idiom=False,
     ):
         self.train_dataset = DialogsumDataset(
             encoder_max_len,
@@ -874,6 +899,7 @@ class DialogsumDataset_total:
             roberta=roberta,
             supervision_relation=supervision_relation,
             sentence_transformer=sentence_transformer,
+            idiom=idiom,
         )
         self.eval_dataset = DialogsumDataset(
             encoder_max_len,
@@ -887,6 +913,7 @@ class DialogsumDataset_total:
             roberta=roberta,
             supervision_relation=supervision_relation,
             sentence_transformer=sentence_transformer,
+            idiom=idiom,
         )
         self.test_dataset = DialogsumDataset(
             encoder_max_len,
@@ -900,6 +927,7 @@ class DialogsumDataset_total:
             roberta=roberta,
             supervision_relation=supervision_relation,
             sentence_transformer=sentence_transformer,
+            idiom=idiom,
         )
         print(self.train_dataset.data_len)
 

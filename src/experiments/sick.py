@@ -140,7 +140,7 @@ class SickExperiment(BasicExperiment):
         result = {key: value.mid.fmeasure * 100 for key, value in result.items()}
         bertscore_result = sum(bertscore_result["f1"]) / len(bertscore_result["f1"])
 
-        print(bertscore_result)
+        print({"bertscore": bertscore_result})
         print(result)
 
         metric_to_save = {}

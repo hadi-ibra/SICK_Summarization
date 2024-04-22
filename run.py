@@ -54,7 +54,7 @@ def get_datasets(args, tokenizer):
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
-            idiom = args.idiom
+            idiom=args.idiom,
         )
         train_dataset = total_dataset.getTrainData()
         eval_dataset = total_dataset.getEvalData()
@@ -70,7 +70,7 @@ def get_datasets(args, tokenizer):
             supervision_relation=args.supervision_relation,
             sentence_transformer=args.use_sentence_transformer,
             roberta=args.use_roberta,
-            idiom = args.idiom
+            idiom=args.idiom,
         )
         train_dataset = total_dataset.getTrainData()
         eval_dataset = total_dataset.getEvalData()
@@ -86,7 +86,7 @@ def get_datasets(args, tokenizer):
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
-            idiom = args.idiom
+            idiom=args.idiom,
         )
         train_dataset = torch.utils.data.Subset(total_dataset.getTrainData(), [i for i in range(10)])
         eval_dataset = torch.utils.data.Subset(total_dataset.getEvalData(), [i for i in range(5)])
@@ -174,16 +174,18 @@ def get_logger(args: Namespace) -> Logger:
 
     return logger
 
+
 def get_config(args: Namespace) -> Seq2SeqTrainingArguments:
-  """Returns the base configuration for SICK-related training."""
-  return Seq2SeqTrainingArguments(
+    """Returns the base configuration for SICK-related training."""
+    is_fp16_available = torch.cuda.is_available()
+    return Seq2SeqTrainingArguments(
         output_dir=args.finetune_weight_path,
         overwrite_output_dir=True,
         do_train=True,
         do_eval=False,
         do_predict=False,
-        logging_strategy="epoch", 
-        save_strategy="epoch", 
+        logging_strategy="epoch",
+        save_strategy="epoch",
         per_device_train_batch_size=args.train_batch_size,
         per_device_eval_batch_size=args.val_batch_size,
         learning_rate=args.init_lr,
@@ -198,39 +200,40 @@ def get_config(args: Namespace) -> Seq2SeqTrainingArguments:
         lr_scheduler_type="polynomial",
         warmup_steps=args.warm_up,
         save_total_limit=1,
+        fp16=is_fp16_available,
         seed=args.seed,
-
         greater_is_better=True,
         report_to=["wandb"],
     )
 
+
 def get_finetune_args(args: Namespace) -> Seq2SeqTrainingArguments:
     if args.framework == FrameworkOption.BASIC_SICK:
         config = get_config(args)
-        config.load_best_model_at_end=True,
-        config.predict_with_generate=True,
-        config.prediction_loss_only=False,
-        config.generation_max_length=100,
-        config.generation_num_beams=5,
-        config.metric_for_best_model="eval_rouge1",
-        config.do_eval=True,
-        config.do_predict=True,
-        config.evaluation_strategy="epoch"
+        config.load_best_model_at_end = True
+        config.predict_with_generate = True
+        config.prediction_loss_only = False
+        config.generation_max_length = 100
+        config.generation_num_beams = 5
+        config.metric_for_best_model = "eval_rouge1"
+        config.do_eval = True
+        config.do_predict = True
+        config.evaluation_strategy = "epoch"
         return config
     elif args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS:
         return get_config(args)
-   
+
     elif args.framework == FrameworkOption.IDIOM_SICK:
         config = get_config(args)
-        config.load_best_model_at_end=True,
-        config.predict_with_generate=True,
-        config.prediction_loss_only=False,
-        config.generation_max_length=100,
-        config.generation_num_beams=5,
-        config.metric_for_best_model="eval_rouge1",
-        config.do_eval=True,
-        config.do_predict=True,
-        config.evaluation_strategy="epoch"
+        config.load_best_model_at_end = True
+        config.predict_with_generate = True
+        config.prediction_loss_only = False
+        config.generation_max_length = 100
+        config.generation_num_beams = 5
+        config.metric_for_best_model = "eval_rouge1"
+        config.do_eval = True
+        config.do_predict = True
+        config.evaluation_strategy = "epoch"
         config.idiom = args.idiom
         return config
     elif args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS:
@@ -271,7 +274,12 @@ def main():
                 device=device,
                 logger=logger,
             )
-        elif args.framework == FrameworkOption.BASIC_SICK or args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS or args.framework == FrameworkOption.IDIOM_SICK or args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS:
+        elif (
+            args.framework == FrameworkOption.BASIC_SICK
+            or args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS
+            or args.framework == FrameworkOption.IDIOM_SICK
+            or args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS
+        ):
             finetune_args = get_finetune_args(args)
             test_kwargs["num_beams"] = args.num_beams
             experiment = SickExperiment(

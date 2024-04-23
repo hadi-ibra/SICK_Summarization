@@ -450,6 +450,7 @@ class DialogsumDataset(Dataset):
         roberta=False,
         sentence_transformer=False,
         idiom=False,
+        is_llm=False,
     ):
         self.encoder_max_len = encoder_max_len
         self.decoder_max_len = decoder_max_len
@@ -464,6 +465,8 @@ class DialogsumDataset(Dataset):
 
         self.roberta = roberta
         self.sentence_transformer = sentence_transformer
+
+        self.is_llm = is_llm
 
         if (self.paracomet) and ("<" != self.relation[0]):
             self.relation = f"<|{self.relation}|>"
@@ -756,6 +759,9 @@ class DialogsumDataset(Dataset):
                             if commonsense.strip() != "none":
                                 dialogue += "<I> " + commonsense.strip() + ". </I>" + "\n"
 
+            if self.is_llm:
+                return dialogue, self.summary[index]
+
             encoded_dialogue = self.tokenizer(
                 dialogue,
                 padding="max_length",
@@ -886,6 +892,7 @@ class DialogsumDataset_total:
         supervision_relation="isAfter",
         sentence_transformer=False,
         idiom=False,
+        is_llm=False,
     ):
         self.train_dataset = DialogsumDataset(
             encoder_max_len,
@@ -900,6 +907,7 @@ class DialogsumDataset_total:
             supervision_relation=supervision_relation,
             sentence_transformer=sentence_transformer,
             idiom=idiom,
+            is_llm=is_llm,
         )
         self.eval_dataset = DialogsumDataset(
             encoder_max_len,
@@ -914,6 +922,7 @@ class DialogsumDataset_total:
             supervision_relation=supervision_relation,
             sentence_transformer=sentence_transformer,
             idiom=idiom,
+            is_llm=is_llm,
         )
         self.test_dataset = DialogsumDataset(
             encoder_max_len,
@@ -928,6 +937,7 @@ class DialogsumDataset_total:
             supervision_relation=supervision_relation,
             sentence_transformer=sentence_transformer,
             idiom=idiom,
+            is_llm=is_llm,
         )
         print(self.train_dataset.data_len)
 

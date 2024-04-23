@@ -55,6 +55,7 @@ def get_datasets(args, tokenizer):
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
             idiom=args.idiom,
+            is_llm=args.is_llm,
         )
         train_dataset = total_dataset.getTrainData()
         eval_dataset = total_dataset.getEvalData()
@@ -71,6 +72,7 @@ def get_datasets(args, tokenizer):
             sentence_transformer=args.use_sentence_transformer,
             roberta=args.use_roberta,
             idiom=args.idiom,
+            is_llm=args.is_llm,
         )
         train_dataset = total_dataset.getTrainData()
         eval_dataset = total_dataset.getEvalData()
@@ -87,6 +89,7 @@ def get_datasets(args, tokenizer):
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
             idiom=args.idiom,
+            is_llm=args.is_llm,
         )
         train_dataset = torch.utils.data.Subset(total_dataset.getTrainData(), [i for i in range(10)])
         eval_dataset = torch.utils.data.Subset(total_dataset.getEvalData(), [i for i in range(5)])
@@ -128,7 +131,7 @@ def load_pretrained_model(args: Namespace, tokenizer, device):
         pretrained_model.gradient_checkpointing_enable()
         pretrained_model = pretrained_model.to(device)
         return pretrained_model
-    elif args.model_name == FrameworkOption.FEW_SHOT:
+    elif args.framework == FrameworkOption.FEW_SHOT:
         return AutoModelForCausalLM.from_pretrained(
             args.model_name,
             use_auth_token=args.hugging_face_token,
@@ -264,8 +267,8 @@ def main():
         if args.framework == FrameworkOption.FEW_SHOT:
             experiment = FewShotLearning(
                 model=model,
-                train_ds=None,
-                eval_ds=None,
+                train_ds=train_dataset,
+                eval_ds=eval_dataset,
                 test_ds=test_dataset,
                 tokenizer=tokenizer,
                 temperature=args.temperature,
@@ -300,7 +303,8 @@ def main():
         if args.phase == ExperimentPhase.ALL:
             experiment.train()
             saving_object = experiment.save()
-            logger.save(saving_object)
+            if saving_object is not None:
+                logger.save(saving_object)
             experiment.test(**test_kwargs)
         elif args.phase == ExperimentPhase.TRAIN:
             experiment.train()

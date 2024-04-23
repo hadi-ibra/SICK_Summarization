@@ -17,7 +17,8 @@ class ModelCheckpointOptions(str, enum.Enum):
 class DatasetOptions(str, enum.Enum):
     SAMSUM = "samsum"
     DIALOGSUM = "dialogsum"
-    DEBUG = "samsum_debug"
+    SAMSUM_DEBUG = "samsum_debug"
+    DIALOGSUM_DEBUG = "dialog_debug"
 
     def __str__(self) -> str:
         return self.value

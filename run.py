@@ -77,7 +77,7 @@ def get_datasets(args, tokenizer):
         train_dataset = total_dataset.getTrainData()
         eval_dataset = total_dataset.getEvalData()
         test_dataset = total_dataset.getTestData()
-    elif args.dataset_name == DatasetOptions.DEBUG:
+    elif args.dataset_name == DatasetOptions.SAMSUM_DEBUG:
         total_dataset = SamsumDataset_total(
             args.encoder_max_len,
             args.decoder_max_len,
@@ -88,6 +88,23 @@ def get_datasets(args, tokenizer):
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
+            idiom=args.idiom,
+            is_llm=args.is_llm,
+        )
+        train_dataset = torch.utils.data.Subset(total_dataset.getTrainData(), [i for i in range(10)])
+        eval_dataset = torch.utils.data.Subset(total_dataset.getEvalData(), [i for i in range(5)])
+        test_dataset = torch.utils.data.Subset(total_dataset.getTestData(), [i for i in range(5)])
+    elif args.dataset_name == DatasetOptions.DIALOGSUM_DEBUG:
+        total_dataset = DialogsumDataset_total(
+            args.encoder_max_len,
+            args.decoder_max_len,
+            tokenizer,
+            extra_context=True,
+            paracomet=args.use_paracomet,
+            relation=args.relation,
+            supervision_relation=args.supervision_relation,
+            sentence_transformer=args.use_sentence_transformer,
+            roberta=args.use_roberta,
             idiom=args.idiom,
             is_llm=args.is_llm,
         )

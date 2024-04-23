@@ -49,12 +49,12 @@ class SickExperiment(BasicExperiment):
         self.is_test_ds_dialog_sum = False
         self.metric = load_metric("src/utils/rouge.py")
         self.bertscore_metric = load_metric("bertscore", lang="en", model_type="bert-base-uncased")
-        if isinstance(test_ds, DialogsumDataset):
+        if isinstance(type(test_ds), type(DialogsumDataset)):
             self.is_test_ds_dialog_sum = True
             self.metric2 = load_metric("src/utils/rouge.py")
             self.metric3 = load_metric("src/utils/rouge.py")
-            self.bertscore_metric = load_metric("bertscore", lang="en", model_type="bert-base-uncased")
-            self.bertscore_metric = load_metric("bertscore", lang="en", model_type="bert-base-uncased")
+            self.bertscore_metric2 = load_metric("bertscore", lang="en", model_type="bert-base-uncased")
+            self.bertscore_metric3 = load_metric("bertscore", lang="en", model_type="bert-base-uncased")
 
     @overrides
     def save(self) -> Any:
@@ -156,10 +156,14 @@ class SickExperiment(BasicExperiment):
 
             result2 = {key: value.mid.fmeasure * 100 for key, value in result2.items()}
             result3 = {key: value.mid.fmeasure * 100 for key, value in result3.items()}
+            print({"bertscore2": bertscore_result2})
+            print({"bertscore3": bertscore_result3})
             print(result2)
             print(result3)
             metric_to_save["rounge2_dialog_sum"] = result2
             metric_to_save["rounge3_dialog_sum"] = result3
+            metric_to_save["bertscore2_dialog_sum"] = bertscore_result2
+            metric_to_save["bertscore3_dialog_sum"] = bertscore_result3
 
         self.logger.save_results(metric_to_save)
         self.logger.summary(metric_to_save)

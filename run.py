@@ -149,14 +149,12 @@ def load_pretrained_model(args: Namespace, tokenizer, device):
         pretrained_model = pretrained_model.to(device)
         return pretrained_model
     elif args.framework == FrameworkOption.FEW_SHOT:
-        if device.type != "cpu" and torch.cuda.is_bf16_available():
-            dtype = torch.float16
-        else:
-            dtype = torch.float32
+        # torch.float16 is usable only on supported GPU (basically everying that load llama)
+        # it will not run on cpu, but we will not try it anyway
         return AutoModelForCausalLM.from_pretrained(
             args.model_name,
             use_auth_token=args.hugging_face_token,
-            torch_dtype=dtype,
+            torch_dtype=torch.float16,
             device_map=device,
         )
     elif args.framework == FrameworkOption.IDIOM_SICK:

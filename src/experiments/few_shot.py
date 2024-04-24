@@ -6,6 +6,7 @@ import numpy as np
 from overrides import overrides
 from rouge import Rouge
 from bert_score import score
+from tqdm import tqdm
 
 from src.experiments.experiment import BasicExperiment
 
@@ -20,6 +21,7 @@ class FewShotLearning(BasicExperiment):
         self.k = k
         self.dialog_max_lenght = 1024
         self.use_temperature = True if temperature > 0 else False
+        self.model.resize_token_embeddings(len(tokenizer))
 
     @overrides
     def train(self) -> None:
@@ -39,7 +41,7 @@ class FewShotLearning(BasicExperiment):
 
         summaries = []
 
-        for dialog, summary_gold in self.test_ds:
+        for dialog, summary_gold in tqdm(self.test_ds):
             prompt = base_prompt + dialog + "SUMMARY:\n"
             inputs = self.tokenizer(prompt, return_token_type_ids=False, return_tensors="pt").to(self.device)
             generate_ids = self.model.generate(
@@ -98,6 +100,10 @@ class FewShotLearning(BasicExperiment):
         r_bert = r_b.mean()
         f_bert = f_b.mean()
 
-        score_tot["bert"] = {"r": r_bert, "p": p_bert, "f": f_bert}
+        score_tot["bert"] = {
+            "r": r_bert.detach().cpu().numpy().tolist(),
+            "p": p_bert.detach().cpu().numpy().tolist(),
+            "f": f_bert.detach().cpu().numpy().tolist(),
+        }
 
         return score_tot

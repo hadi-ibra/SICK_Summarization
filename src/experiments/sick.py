@@ -13,6 +13,8 @@ from torch.utils.data import DataLoader, Dataset
 from src.data.dataset import DialogsumDataset
 from src.experiments.experiment import BasicExperiment
 from src.logging.logger import Logger
+from src.models.bart import BartForConditionalGeneration_DualDecoder
+from src.trainer import DualDecoderTrainer
 
 
 class SickExperiment(BasicExperiment):
@@ -36,15 +38,25 @@ class SickExperiment(BasicExperiment):
         if freeze_encoder:
             self._freeze_weight(model.get_encoder())
 
-        self.finetune_trainer = Seq2SeqTrainer(
-            model=model,
-            args=finetune_args,
-            train_dataset=self.train_ds,
-            eval_dataset=self.eval_ds,
-            tokenizer=tokenizer,
-            compute_metrics=self._compute_metrics,
-            # preprocess_logits_for_metrics=preprocess_logits_for_metrics
-        )
+        if isinstance(type(model), type(BartForConditionalGeneration_DualDecoder)):
+            self.finetune_trainer = DualDecoderTrainer(
+                model=model,
+                args=finetune_args,
+                train_dataset=train_ds,
+                # eval_dataset = eval_dataset,
+                tokenizer=tokenizer,
+                # compute_metrics=compute_metrics
+            )
+        else:
+            self.finetune_trainer = Seq2SeqTrainer(
+                model=model,
+                args=finetune_args,
+                train_dataset=self.train_ds,
+                eval_dataset=self.eval_ds,
+                tokenizer=tokenizer,
+                compute_metrics=self._compute_metrics,
+                # preprocess_logits_for_metrics=preprocess_logits_for_metrics
+            )
 
         self.is_test_ds_dialog_sum = False
         self.metric = load_metric("src/utils/rouge.py")

@@ -38,7 +38,7 @@ class SickExperiment(BasicExperiment):
         if freeze_encoder:
             self._freeze_weight(model.get_encoder())
 
-        if isinstance(type(model), type(BartForConditionalGeneration_DualDecoder)):
+        if isinstance(type(model), BartForConditionalGeneration_DualDecoder):
             self.finetune_trainer = DualDecoderTrainer(
                 model=model,
                 args=finetune_args,

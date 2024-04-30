@@ -31,6 +31,8 @@ class SickExperiment(BasicExperiment):
         gen: Generator,
         device,
         logger: Logger,
+        is_plus_version: bool = False,
+        is_test_ds_dialog_sum: bool = False,
     ) -> None:
         super().__init__(model, train_ds, eval_ds, test_ds, tokenizer, gen, device, logger)
         self.finetune_args = finetune_args
@@ -38,7 +40,7 @@ class SickExperiment(BasicExperiment):
         if freeze_encoder:
             self._freeze_weight(model.get_encoder())
 
-        if isinstance(type(model), BartForConditionalGeneration_DualDecoder):
+        if is_plus_version:
             self.finetune_trainer = DualDecoderTrainer(
                 model=model,
                 args=finetune_args,
@@ -58,11 +60,10 @@ class SickExperiment(BasicExperiment):
                 # preprocess_logits_for_metrics=preprocess_logits_for_metrics
             )
 
-        self.is_test_ds_dialog_sum = False
+        self.is_test_ds_dialog_sum = is_test_ds_dialog_sum
         self.metric = load_metric("src/utils/rouge.py")
         self.bertscore_metric = load_metric("bertscore", lang="en", model_type="bert-base-uncased")
-        if isinstance(type(test_ds), type(DialogsumDataset)):
-            self.is_test_ds_dialog_sum = True
+        if self.is_test_ds_dialog_sum:
             self.metric2 = load_metric("src/utils/rouge.py")
             self.metric3 = load_metric("src/utils/rouge.py")
             self.bertscore_metric2 = load_metric("bertscore", lang="en", model_type="bert-base-uncased")

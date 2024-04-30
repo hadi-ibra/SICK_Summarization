@@ -20,6 +20,10 @@ new_weights_sick/
 
 src/config/__pycache__
 
+**/__pycache__
+
+weights_sick_samsum
+
 wandb
 
 debug.sh

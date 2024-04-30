@@ -8,6 +8,8 @@ from transformers import AutoTokenizer, BartForConditionalGeneration
 from transformers import AutoModelForCausalLM
 from transformers import AutoModelForSeq2SeqLM
 from transformers import Seq2SeqTrainingArguments
+from dataclasses import replace
+
 from src.data.dataset import SamsumDataset_total, DialogsumDataset_total
 
 from src.config.enums import (
@@ -43,6 +45,9 @@ def is_cuda_available() -> torch.device:
 
 
 def get_datasets(args, tokenizer):
+    use_extra_supervision = (args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS) or (
+        args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS
+    )
     if args.dataset_name == DatasetOptions.SAMSUM:
         total_dataset = SamsumDataset_total(
             args.encoder_max_len,
@@ -54,6 +59,7 @@ def get_datasets(args, tokenizer):
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
+            extra_supervision=use_extra_supervision,
             idiom=args.idiom,
             is_llm=args.is_llm,
         )
@@ -70,6 +76,7 @@ def get_datasets(args, tokenizer):
             relation=args.relation,
             supervision_relation=args.supervision_relation,
             sentence_transformer=args.use_sentence_transformer,
+            extra_supervision=use_extra_supervision,
             roberta=args.use_roberta,
             idiom=args.idiom,
             is_llm=args.is_llm,
@@ -88,6 +95,7 @@ def get_datasets(args, tokenizer):
             supervision_relation=args.supervision_relation,
             roberta=args.use_roberta,
             sentence_transformer=args.use_sentence_transformer,
+            extra_supervision=use_extra_supervision,
             idiom=args.idiom,
             is_llm=args.is_llm,
         )
@@ -104,6 +112,7 @@ def get_datasets(args, tokenizer):
             relation=args.relation,
             supervision_relation=args.supervision_relation,
             sentence_transformer=args.use_sentence_transformer,
+            extra_supervision=use_extra_supervision,
             roberta=args.use_roberta,
             idiom=args.idiom,
             is_llm=args.is_llm,
@@ -230,38 +239,25 @@ def get_config(args: Namespace) -> Seq2SeqTrainingArguments:
 
 
 def get_finetune_args(args: Namespace) -> Seq2SeqTrainingArguments:
-    if args.framework == FrameworkOption.BASIC_SICK:
+    if args.framework == FrameworkOption.BASIC_SICK or args.framework == FrameworkOption.IDIOM_SICK:
         config = get_config(args)
-        config.load_best_model_at_end = True
-        config.predict_with_generate = True
-        config.prediction_loss_only = False
-        config.generation_max_length = 100
-        config.generation_num_beams = 5
-        config.metric_for_best_model = "eval_rouge1"
-        config.do_eval = True
-        config.do_predict = True
-        config.evaluation_strategy = "epoch"
+        options = {
+            "load_best_model_at_end": True,
+            "predict_with_generate": True,
+            "prediction_loss_only": False,
+            "generation_max_length": 100,
+            "generation_num_beams": 5,
+            "metric_for_best_model": "eval_rouge1",
+            "do_eval": True,
+            "do_predict": True,
+            "evaluation_strategy": "epoch",
+        }
+        config = replace(config, **options)
         return config
-    elif args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS:
+    elif (
+        args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS or args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS
+    ):
         return get_config(args)
-
-    elif args.framework == FrameworkOption.IDIOM_SICK:
-        config = get_config(args)
-        config.load_best_model_at_end = True
-        config.predict_with_generate = True
-        config.prediction_loss_only = False
-        config.generation_max_length = 100
-        config.generation_num_beams = 5
-        config.metric_for_best_model = "eval_rouge1"
-        config.do_eval = True
-        config.do_predict = True
-        config.evaluation_strategy = "epoch"
-        config.idiom = args.idiom
-        return config
-    elif args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS:
-        config = get_config(args)
-        config.idiom = args.idiom
-        return config
     else:
         raise NotImplementedError(f"The finetune args for framework {args.framework} is not implemented")
 
@@ -282,6 +278,10 @@ def main():
     try:
         logger = get_logger(args)
 
+        is_test_ds_dialog_sum = (args.dataset_name == DatasetOptions.DIALOGSUM) or (
+            args.dataset_name == DatasetOptions.DIALOGSUM_DEBUG
+        )
+
         # TODO: discuss the term framework, it's not the best in this context
         if args.framework == FrameworkOption.FEW_SHOT:
             experiment = FewShotLearning(
@@ -296,10 +296,25 @@ def main():
                 device=device,
                 logger=logger,
             )
+        elif args.framework == FrameworkOption.BASIC_SICK or args.framework == FrameworkOption.IDIOM_SICK:
+            finetune_args = get_finetune_args(args)
+            test_kwargs["num_beams"] = args.num_beams
+            experiment = SickExperiment(
+                model=model,
+                finetune_args=finetune_args,
+                freeze_encoder=args.freeze_encoder,
+                train_ds=train_dataset,
+                eval_ds=eval_dataset,
+                test_ds=test_dataset,
+                tokenizer=tokenizer,
+                gen=gen,
+                device=device,
+                logger=logger,
+                is_plus_version=False,
+                is_test_ds_dialog_sum=is_test_ds_dialog_sum,
+            )
         elif (
-            args.framework == FrameworkOption.BASIC_SICK
-            or args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS
-            or args.framework == FrameworkOption.IDIOM_SICK
+            args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS
             or args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS
         ):
             finetune_args = get_finetune_args(args)
@@ -315,6 +330,8 @@ def main():
                 gen=gen,
                 device=device,
                 logger=logger,
+                is_plus_version=True,
+                is_test_ds_dialog_sum=is_test_ds_dialog_sum,
             )
         else:
             raise NotImplementedError("The framework selected is not implemented")

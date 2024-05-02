@@ -137,9 +137,9 @@ def get_model(args: Namespace, tokenizer, device):
 
 
 def load_checkpoint(args: Namespace):
-    if args.framework == FrameworkOption.BASIC_SICK:
+    if args.framework == FrameworkOption.BASIC_SICK or args.framework == FrameworkOption.IDIOM_SICK:
         return BartForConditionalGeneration.from_pretrained(args.model_checkpoint)
-    elif args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS:
+    elif args.framework == FrameworkOption.BASIC_SICK_PLUS_PLUS or args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS:
         return BartForConditionalGeneration_DualDecoder.from_pretrained(args.model_checkpoint)
     else:
         raise NotImplementedError(f"The frameworkOption {args.framework} does not provide checkpoint option")

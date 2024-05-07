@@ -295,6 +295,7 @@ def main():
                 gen=gen,
                 device=device,
                 logger=logger,
+                is_test_ds_dialog_sum=is_test_ds_dialog_sum,
             )
         elif args.framework == FrameworkOption.BASIC_SICK or args.framework == FrameworkOption.IDIOM_SICK:
             finetune_args = get_finetune_args(args)

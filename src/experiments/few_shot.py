@@ -14,14 +14,26 @@ from src.experiments.experiment import BasicExperiment
 class FewShotLearning(BasicExperiment):
 
     def __init__(
-        self, model, train_ds, eval_ds, test_ds, tokenizer, temperature, k, gen: np.random.Generator, device, logger
+        self,
+        model,
+        train_ds,
+        eval_ds,
+        test_ds,
+        tokenizer,
+        temperature,
+        k,
+        gen: np.random.Generator,
+        device,
+        logger,
+        is_test_ds_dialog_sum,
     ) -> None:
         super().__init__(model, train_ds, eval_ds, test_ds, tokenizer, gen, device, logger)
         self.temperature = temperature
         self.k = k
-        self.dialog_max_lenght = 1024
+        self.dialog_max_lenght = 2048
         self.use_temperature = True if temperature > 0 else False
         self.model.resize_token_embeddings(len(tokenizer))
+        self.is_test_ds_dialog_sum = is_test_ds_dialog_sum
 
     @overrides
     def train(self) -> None:
@@ -59,6 +71,7 @@ class FewShotLearning(BasicExperiment):
             output_summary = output.split("SUMMARY:")[-1].strip().strip("\n")
             summaries.append((output_summary, summary_gold))
 
+        self.logger.save_results({"summaries": summaries})
         metrics = self._compute_metrics(summaries)
         self.logger.save_results(metrics)
         self.logger.summary(metrics)
@@ -86,24 +99,35 @@ class FewShotLearning(BasicExperiment):
 
     def _compute_metrics(self, summaries) -> dict:
         rouge = Rouge()
-        model_summaries, gold_summaries = map(list, zip(*[s for s in summaries]))
-        score_tot = rouge.get_scores(model_summaries, gold_summaries, avg=True)
-        p_b, r_b, f_b = score(
-            model_summaries,
-            gold_summaries,
-            lang="en",
-            model_type="microsoft/deberta-large-mnli",
-            batch_size=1,
-            device=self.device,
-        )
-        p_bert = p_b.mean()
-        r_bert = r_b.mean()
-        f_bert = f_b.mean()
+        if self.is_test_ds_dialog_sum:
+            model_summaries, gold_summaries1, gold_summaries2, gold_summaries3 = map(list, zip(*[s for s in summaries]))
+            gold_summaries_types = [gold_summaries1, gold_summaries2, gold_summaries3]
+        else:
+            model_summaries, gold_summaries1 = map(list, zip(*[s for s in summaries]))
+            gold_summaries_types = [gold_summaries1]
 
-        score_tot["bert"] = {
-            "r": r_bert.detach().cpu().numpy().tolist(),
-            "p": p_bert.detach().cpu().numpy().tolist(),
-            "f": f_bert.detach().cpu().numpy().tolist(),
-        }
+        result = {}
 
-        return score_tot
+        for idx, gold_summaries in enumerate(gold_summaries_types):
+            score_tot = rouge.get_scores(model_summaries, gold_summaries, avg=True)
+            p_b, r_b, f_b = score(
+                model_summaries,
+                gold_summaries,
+                lang="en",
+                model_type="microsoft/deberta-large-mnli",
+                batch_size=1,
+                device=self.device,
+            )
+            p_bert = p_b.mean()
+            r_bert = r_b.mean()
+            f_bert = f_b.mean()
+
+            score_tot["bert"] = {
+                "r": r_bert.detach().cpu().numpy().tolist(),
+                "p": p_bert.detach().cpu().numpy().tolist(),
+                "f": f_bert.detach().cpu().numpy().tolist(),
+            }
+
+            result[f"summary_{idx}"] = score_tot
+
+        return result

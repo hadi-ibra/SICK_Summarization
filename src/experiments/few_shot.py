@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
-from typing import Any, List
+from typing import List
 
 import numpy as np
+import copy
 
 from overrides import overrides
 from rouge import Rouge
@@ -100,7 +100,15 @@ class FewShotLearning(BasicExperiment):
     def _compute_metrics(self, summaries) -> dict:
         rouge = Rouge()
         if self.is_test_ds_dialog_sum:
-            model_summaries, gold_summaries1, gold_summaries2, gold_summaries3 = map(list, zip(*[s for s in summaries]))
+            model_summaries = []
+            gold_summaries1 = []
+            gold_summaries2 = []
+            gold_summaries3 = []
+            for s in summaries:
+                model_summaries.append(s[0])
+                gold_summaries1.append(s[1][0])
+                gold_summaries2.append(s[1][1])
+                gold_summaries3.append(s[1][2])
             gold_summaries_types = [gold_summaries1, gold_summaries2, gold_summaries3]
         else:
             model_summaries, gold_summaries1 = map(list, zip(*[s for s in summaries]))
@@ -128,6 +136,6 @@ class FewShotLearning(BasicExperiment):
                 "f": f_bert.detach().cpu().numpy().tolist(),
             }
 
-            result[f"summary_{idx}"] = score_tot
+            result[f"summary_{idx}"] = copy.deepcopy(score_tot)
 
         return result

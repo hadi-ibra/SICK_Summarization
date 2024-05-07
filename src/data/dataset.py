@@ -761,9 +761,9 @@ class DialogsumDataset(Dataset):
 
             if self.is_llm:
                 if self.split_type == "test":
-                    return dialogue, self.summary[index]
+                    return dialogue, (self.summary[index], self.summary2[index], self.summary3[index])
                 else:
-                    return dialogue, self.summary[index], self.summary2[index], self.summary3[index]
+                    return dialogue, self.summary[index]
 
             encoded_dialogue = self.tokenizer(
                 dialogue,

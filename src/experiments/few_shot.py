@@ -1,3 +1,4 @@
+import sys
 from typing import List
 
 import numpy as np
@@ -49,7 +50,7 @@ class FewShotLearning(BasicExperiment):
 
         tokens = self.tokenizer.tokenize(str(base_prompt))
         token_count = len(tokens)
-        length_max = token_count + self.dialog_max_lenght
+        self.length_max = token_count + self.dialog_max_lenght
 
         summaries = []
 
@@ -63,7 +64,7 @@ class FewShotLearning(BasicExperiment):
                 top_k=10,
                 num_return_sequences=1,
                 eos_token_id=self.tokenizer.eos_token_id,
-                max_length=length_max,
+                max_length=self.length_max,
             )
             output = self.tokenizer.batch_decode(
                 generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
@@ -98,6 +99,7 @@ class FewShotLearning(BasicExperiment):
         return header + " ".join(examples) + tail
 
     def _compute_metrics(self, summaries) -> dict:
+        sys.setrecursionlimit(self.length_max + 10)
         rouge = Rouge()
         if self.is_test_ds_dialog_sum:
             model_summaries = []

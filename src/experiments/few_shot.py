@@ -90,11 +90,11 @@ class FewShotLearning(BasicExperiment):
         return examples
 
     def _gen_examples_template(self, training_examples: List[str]) -> str:
-        header = "Summarize the chat dialog. Here you can find some examples:"
-        tail = "Summarize the following chat dialog in one sentence.\nDIALOG:"
+        header = "Summarize the chat dialog. Here you can find some examples:\n"
+        tail = "\nSummarize the following chat dialog in one sentence.\nDIALOG:"
         examples = []
         for dialog, summary in training_examples:
-            template_example = f"DIALOG: {dialog}\nSUMMARY: {summary}"
+            template_example = f"DIALOG: {dialog}SUMMARY: {summary}\n"
             examples.append(template_example)
         return header + " ".join(examples) + tail
 

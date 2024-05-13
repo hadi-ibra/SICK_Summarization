@@ -35,6 +35,15 @@ class FewShotLearning(BasicExperiment):
         self.use_temperature = True if temperature > 0 else False
         self.model.resize_token_embeddings(len(tokenizer))
         self.is_test_ds_dialog_sum = is_test_ds_dialog_sum
+        if self.k != 0:
+            examples = self._get_training_samples()
+            self.base_prompt = self._gen_examples_template(examples)
+        else:
+            self.base_prompt = "Summarize the chat dialog.\n"
+
+        tokens = self.tokenizer.tokenize(str(self.base_prompt))
+        token_count = len(tokens)
+        self.length_max = token_count + self.dialog_max_lenght
 
     @overrides
     def train(self) -> None:
@@ -45,20 +54,10 @@ class FewShotLearning(BasicExperiment):
 
     @overrides
     def test(self, **kwargs) -> None:
-        if self.k != 0:
-            examples = self._get_training_samples()
-            base_prompt = self._gen_examples_template(examples)
-        else:
-            base_prompt = "Summarize the chat dialog.\n"
-
-        tokens = self.tokenizer.tokenize(str(base_prompt))
-        token_count = len(tokens)
-        self.length_max = token_count + self.dialog_max_lenght
-
         summaries = []
 
         for dialog, summary_gold in tqdm(self.test_ds):
-            prompt = base_prompt + dialog + "SUMMARY:\n"
+            prompt = self.base_prompt + dialog + "SUMMARY:\n"
             inputs = self.tokenizer(prompt, return_token_type_ids=False, return_tensors="pt").to(self.device)
             generate_ids = self.model.generate(
                 **inputs,

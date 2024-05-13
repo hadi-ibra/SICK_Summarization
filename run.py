@@ -185,7 +185,7 @@ def load_pretrained_model(args: Namespace, tokenizer, device):
 
 
 def get_tokenizer(args: Namespace):
-    print(f"Initializing Tokenizer")metrics = self._compute_metrics(summaries)
+    print(f"Initializing Tokenizer")
     if args.load_checkpoint:
         tokenizer = AutoTokenizer.from_pretrained(args.model_checkpoint)
     else:
@@ -363,7 +363,7 @@ def main():
             with open(args.summaries_folder) as f:
                 result_file = json.load(f)
             summaries = result_file["summaries"]
-            metrics = experiment._compute_metrics(summaries) # type: ignore
+            metrics = experiment._compute_metrics(summaries)  # type: ignore
             logger.save_results({"summaries": summaries})
             logger.save_results(metrics)
             logger.summary(metrics)

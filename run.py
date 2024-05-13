@@ -4,6 +4,7 @@ from argparse import Namespace
 import nltk
 import numpy as np
 import torch
+import json
 from transformers import AutoTokenizer, BartForConditionalGeneration
 from transformers import AutoModelForCausalLM
 from transformers import AutoModelForSeq2SeqLM
@@ -184,7 +185,7 @@ def load_pretrained_model(args: Namespace, tokenizer, device):
 
 
 def get_tokenizer(args: Namespace):
-    print(f"Initializing Tokenizer")
+    print(f"Initializing Tokenizer")metrics = self._compute_metrics(summaries)
     if args.load_checkpoint:
         tokenizer = AutoTokenizer.from_pretrained(args.model_checkpoint)
     else:
@@ -355,6 +356,17 @@ def main():
             logger.save(saving_object)
         elif args.phase == ExperimentPhase.TEST:
             experiment.test(**test_kwargs)
+        # NOTE: use this settings ONLY with few-shot experiment
+        elif args.phase == ExperimentPhase.METRIC:
+            assert args.framework == FrameworkOption.FEW_SHOT, "Use metric phase only with few-shot framework"
+            assert args.summaries_folder is not None, "Can't use metric phase without setting summaries_folder param"
+            with open(args.summaries_folder) as f:
+                result_file = json.load(f)
+            summaries = result_file["summaries"]
+            metrics = experiment._compute_metrics(summaries) # type: ignore
+            logger.save_results({"summaries": summaries})
+            logger.save_results(metrics)
+            logger.summary(metrics)
         else:
             raise NotImplementedError("The phase chosen is not implemented")
 

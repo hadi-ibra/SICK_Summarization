@@ -39,6 +39,7 @@ class ExperimentPhase(str, enum.Enum):
     ALL = "all"
     TRAIN = "train"
     TEST = "test"
+    METRIC = "metric"
 
     def __str__(self) -> str:
         return self.value

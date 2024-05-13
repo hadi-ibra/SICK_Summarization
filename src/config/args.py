@@ -65,7 +65,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--epoch", type=int, default=20)
     parser.add_argument("--train_batch_size", type=int, default=20)
     # idiom dataset
-    parser.add_argument('--idiom', type=bool, default=False)
+    parser.add_argument("--idiom", type=bool, default=False)
     # parser.add_argument('--display_step',type=int, default=2000)
     parser.add_argument("--val_batch_size", type=int, default=4)
     parser.add_argument("--test_batch_size", type=int, default=1)
@@ -93,9 +93,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--eos_idx", type=int, default=51200)
     parser.add_argument("--tokenizer_name", type=str, default="RobertaTokenizer")
     # Checkpoint directory hyperparameters
-    parser.add_argument(
-        "--pretrained_weight_path", type=str, default="pretrained_weights"
-    )
+    parser.add_argument("--pretrained_weight_path", type=str, default="pretrained_weights")
     parser.add_argument(
         "--finetune_weight_path",
         type=str,
@@ -124,6 +122,7 @@ def get_parser() -> argparse.ArgumentParser:
     parser.add_argument("--temperature", type=float, default=0)
     parser.add_argument("--k", type=int, default=2)
     parser.add_argument("--is_llm", type=bool, default=False)
+    parser.add_argument("--summaries_folder", type=str)
 
     # Inference params
     parser.add_argument("--load_checkpoint", type=bool, default=False)
@@ -134,9 +133,7 @@ def get_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--test_output_file_name", type=str, default="results.json")
     # TODO: Remove --train_configuration (probably not used in the new code, check it)
-    parser.add_argument(
-        "--train_configuration", type=str, default="full"
-    )  # base, context, supervision, full
+    parser.add_argument("--train_configuration", type=str, default="full")  # base, context, supervision, full
     parser.add_argument("--num_beams", type=int, default=20)
 
     return parser

@@ -45,8 +45,11 @@ class FewShotLearning(BasicExperiment):
 
     @overrides
     def test(self, **kwargs) -> None:
-        examples = self._get_training_samples()
-        base_prompt = self._gen_examples_template(examples)
+        if self.k != 0:
+            examples = self._get_training_samples()
+            base_prompt = self._gen_examples_template(examples)
+        else:
+            base_prompt = "Summarize the chat dialog.\n"
 
         tokens = self.tokenizer.tokenize(str(base_prompt))
         token_count = len(tokens)

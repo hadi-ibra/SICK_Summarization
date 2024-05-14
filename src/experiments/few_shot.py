@@ -72,7 +72,8 @@ class FewShotLearning(BasicExperiment):
                 generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
             )[0]
             output_summary = output.split("SUMMARY:")[-1].strip().strip("\n")
-            summaries.append((output_summary, summary_gold))
+            if output_summary:
+                summaries.append((output_summary, summary_gold))
 
         self.logger.save_results({"summaries": summaries})
         metrics = self._compute_metrics(summaries)

@@ -30,6 +30,7 @@ class FrameworkOption(str, enum.Enum):
     BASIC_SICK_PLUS_PLUS = "basic_sick_plus_plus"
     IDIOM_SICK = "idiom_sick"
     IDIOM_SICK_PLUS_PLUS = "idiom_sick_plus_plus"
+    FEW_SHOT_IDIOM = "idiom_few_shot"
 
     def __str__(self) -> str:
         return self.value

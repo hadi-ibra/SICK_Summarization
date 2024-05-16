@@ -272,7 +272,11 @@ def get_finetune_args(args: Namespace) -> Seq2SeqTrainingArguments:
 def main():
     start_time = time.time()
     args = get_args()
-    if args.framework == FrameworkOption.IDIOM_SICK or args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS:
+    if (
+        args.framework == FrameworkOption.IDIOM_SICK
+        or args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS
+        or FrameworkOption.FEW_SHOT_IDIOM
+    ):
         args.idiom = True
     device = is_cuda_available()
     gen = np.random.default_rng(args.seed)

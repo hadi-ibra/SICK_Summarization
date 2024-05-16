@@ -39,7 +39,7 @@ class FewShotLearning(BasicExperiment):
             examples = self._get_training_samples()
             self.base_prompt = self._gen_examples_template(examples)
         else:
-            self.base_prompt = "Summarize the chat dialog.\n"
+            self.base_prompt = "Summarize the following chat dialog in one sentence.\nDIALOG:"
 
         tokens = self.tokenizer.tokenize(str(self.base_prompt))
         token_count = len(tokens)
@@ -57,7 +57,7 @@ class FewShotLearning(BasicExperiment):
         summaries = []
 
         for dialog, summary_gold in tqdm(self.test_ds):
-            prompt = self.base_prompt + dialog + "SUMMARY:\n"
+            prompt = self.base_prompt + dialog + "\nSUMMARY:"
             inputs = self.tokenizer(prompt, return_token_type_ids=False, return_tensors="pt").to(self.device)
             generate_ids = self.model.generate(
                 **inputs,
@@ -95,7 +95,7 @@ class FewShotLearning(BasicExperiment):
 
     def _gen_examples_template(self, training_examples: List[str]) -> str:
         header = "Summarize the chat dialog. Here you can find some examples:\n"
-        tail = "\nSummarize the following chat dialog in one sentence.\nDIALOG:"
+        tail = "Summarize the following chat dialog in one sentence.\nDIALOG:"
         examples = []
         for dialog, summary in training_examples:
             template_example = f"DIALOG: {dialog}SUMMARY: {summary}\n"

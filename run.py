@@ -275,7 +275,7 @@ def main():
     if (
         args.framework == FrameworkOption.IDIOM_SICK
         or args.framework == FrameworkOption.IDIOM_SICK_PLUS_PLUS
-        or FrameworkOption.FEW_SHOT_IDIOM
+        or args.framework == FrameworkOption.FEW_SHOT_IDIOM
     ):
         args.idiom = True
     device = is_cuda_available()

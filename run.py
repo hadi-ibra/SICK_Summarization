@@ -294,7 +294,7 @@ def main():
         )
 
         # TODO: discuss the term framework, it's not the best in this context
-        if args.framework == FrameworkOption.FEW_SHOT:
+        if args.framework == FrameworkOption.FEW_SHOT or args.framework == FrameworkOption.FEW_SHOT_IDIOM:
             experiment = FewShotLearning(
                 model=model,
                 train_ds=train_dataset,

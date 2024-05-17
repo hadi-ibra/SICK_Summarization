@@ -160,7 +160,7 @@ def load_pretrained_model(args: Namespace, tokenizer, device):
         pretrained_model.gradient_checkpointing_enable()
         pretrained_model = pretrained_model.to(device)
         return pretrained_model
-    elif args.framework == FrameworkOption.FEW_SHOT:
+    elif args.framework == FrameworkOption.FEW_SHOT or args.framework == FrameworkOption.FEW_SHOT_IDIOM:
         # torch.float16 is usable only on supported GPU (basically everying that load llama)
         # it will not run on cpu, but we will not try it anyway
         return AutoModelForCausalLM.from_pretrained(
@@ -294,7 +294,7 @@ def main():
         )
 
         # TODO: discuss the term framework, it's not the best in this context
-        if args.framework == FrameworkOption.FEW_SHOT:
+        if args.framework == FrameworkOption.FEW_SHOT or args.framework == FrameworkOption.FEW_SHOT_IDIOM:
             experiment = FewShotLearning(
                 model=model,
                 train_ds=train_dataset,

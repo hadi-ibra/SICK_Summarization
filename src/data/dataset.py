@@ -163,6 +163,8 @@ class SamsumDataset(Dataset):
 
     def __getitem__(self, index):
         if self.extra_context == False:
+            if self.is_llm:
+                return self.dialogue[index], self.summary[index]
             # (1, sequence_length)
             encoded_dialogue = self.tokenizer(
                 self.dialogue[index],
@@ -600,6 +602,11 @@ class DialogsumDataset(Dataset):
 
     def __getitem__(self, index):
         if self.extra_context == False:
+            if self.is_llm:
+                if self.split_type == "test":
+                    return self.dialogue[index], (self.summary[index], self.summary2[index], self.summary3[index])
+                else:
+                    return self.dialogue[index], self.summary[index]
             # (1, sequence_length)
             encoded_dialogue = self.tokenizer(
                 self.dialogue[index],

@@ -111,6 +111,7 @@ def get_parser() -> argparse.ArgumentParser:
         choices=list(DatasetOptions),
         default="samsum",
     )
+    parser.add_argument("--use_commonsense", type=bool, default=True)
     parser.add_argument("--use_paracomet", type=bool, default=False)
     parser.add_argument("--use_roberta", type=bool, default=False)
     parser.add_argument("--use_sentence_transformer", type=bool, default=False)

@@ -178,6 +178,9 @@ class SickExperiment(BasicExperiment):
             metric_to_save["bertscore2_dialog_sum"] = bertscore_result2
             metric_to_save["bertscore3_dialog_sum"] = bertscore_result3
 
+        summaries = [(summary, gold) for summary, gold in zip(total_decoded_preds, total_decoded_labels)]
+
+        self.logger.save_results({"summaries": summaries})
         self.logger.save_results(metric_to_save)
         self.logger.summary(metric_to_save)
 

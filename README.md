@@ -25,8 +25,8 @@ The project can be run both in a local environment (if at least a GPU is present
    ```
 3. Add the needed datasets
    - SamSum: already provided with the library Hugging Face
-   - DialogSum: download it from [here](https://drive.google.com/drive/folders/1CuZaU5Xw0AiIPaBTRrjToFkktS7_6KwG?usp=share_link) and copy it under ```data/DialogSum_Data```
-   - SamSum and DialogSum commonsense: download it from [here](https://drive.google.com/drive/folders/1z1MXBGJ3pt0lC5dneMfFrQgxXTD8Iqrr?usp=share_link) and copy it under ```data/COMET_data```
+   - DialogSum: download it from [here](https://drive.google.com/drive/folders/1arrpEPCn31ZQ7bKlSC3hJZxocQmeZFlV?usp=sharing) and copy it under ```data/DialogSum_Data```
+   - SamSum and DialogSum commonsense: download it from [here](https://drive.google.com/drive/folders/1CK8cfOdw5gFmhrfjuEu6vAWybPeUR2G2?usp=sharing) and copy it under ```data/COMET_data```
 4. Go to the run section
 
 ### Google colab
@@ -41,9 +41,13 @@ The project can be run both in a local environment (if at least a GPU is present
    ```
 3. Add the needed datasets
    - SamSum: already provided with the library Hugging Face
-   - DialogSum: download it from [here](https://drive.google.com/drive/folders/1CuZaU5Xw0AiIPaBTRrjToFkktS7_6KwG?usp=share_link) and copy it under ```data/DialogSum_Data```
-   - SamSum and DialogSum commonsense: download it from [here](https://drive.google.com/drive/folders/1z1MXBGJ3pt0lC5dneMfFrQgxXTD8Iqrr?usp=share_link) and copy it under ```data/COMET_data```
+   - DialogSum: download it from [here](https://drive.google.com/drive/folders/1arrpEPCn31ZQ7bKlSC3hJZxocQmeZFlV?usp=sharing) and copy it under ```data/DialogSum_Data```
+   - SamSum and DialogSum commonsense: download it from [here](https://drive.google.com/drive/folders/1CK8cfOdw5gFmhrfjuEu6vAWybPeUR2G2?usp=sharing) and copy it under ```data/COMET_data```
 4. Go to the run section
+
+## Demo
+Inside the project is present a ```demo.py``` file to run a pipeline with 4 different model (SICK, SICK+Idiom, Few-Shot (Llama), Few-Shot+Idiom (Llama)) on a dialog extracted from SamSum.
+A helper jupyter notebook is also present, called ```demo_runner.ipynb```. It contains all the required preliminary operation described in the "Setting" section with just a few path to modify.
 
 ## Experiments run
 Use the following command to run all the project experiments. Every experiment category present a subset of possible parameters.
@@ -57,6 +61,12 @@ To run variation of the presented categories with the idiom dataset change the v
  - "basic_sick_plus_plus" => "idiom_sick_plus_plus"
  - "few_shot_learning" => "idiom_few_shot"
 and add ```--idiom True``` in your arguments.
+
+### SICK example run
+```
+wandb disabled
+python3 run.py --hugging_face_token <ADD_YOUR_TOKEN> --project sick_samsum --framework "basic_sick" --exp_name sick_samsum_5e_paracomet --seed 516 --phase "all" --dataset_name "samsum" --model_name "facebook/bart-large-xsum" --finetune_weight_path "./weights_sick_samsum" --best_finetune_weight_path "./weights_sick_samsum_best" --epoch 5 --use_paracomet True --relation "xIntent" --use_sentence_transformer True --not_use_wandb
+```
 
 For SICK some configuration are:
  - hugging_face_token <HUGGING FACE KEY>: Token to access Hugging Face and download the needed components.
@@ -73,6 +83,12 @@ For SICK some configuration are:
  - use_paracomet: If you set to true, it will use paracomet, and if not, it will use comet by default.
  - relation: If you would only like to use one of the 5 possible relations, you could specify it with this argument.
  - use_sentence_transformer: If you would like to use the commonsense selected with sentence_transformer, you should use this argument.
+
+### SICK++ example run
+```
+wandb disabled
+python3 run.py --hugging_face_token <ADD_YOUR_TOKEN> --project base_sick --framework "basic_sick_plus_plus" --exp_name sickplus_samsum_5e --seed 516 --phase "all" --dataset_name "samsum_debug" --model_name "facebook/bart-large-xsum" --finetune_weight_path "./weights_sickplus_samsum" --best_finetune_weight_path "./weights_sickplus_samsum_best" --epoch 5 --use_paracomet True --relation "xIntent" --use_sentence_transformer True --not_use_wand --supervision_relation "xIntent"
+```
 
 For SICK++ some configuration are:
  - hugging_face_token <HUGGING FACE KEY>: Token to access Hugging Face and download the needed components.
@@ -91,6 +107,11 @@ For SICK++ some configuration are:
  - use_sentence_transformer: If you would like to use the commonsense selected with sentence_transformer, you should use this argument.
  - supervision_relation : If you would only like to use one of the 5 possible supervision relations, you could specify it with this argument.
 
+### FewShot example run
+```
+wandb disabled
+python3 run.py --hugging_face_token <ADD_YOUR_TOKEN> --project "samsum_t0_k4" --framework "few_shot_learning" --exp_name "samsum_t0_k4" --seed 516 --phase "all" --dataset_name "samsum" --model_name "meta-llama/Llama-2-7b-chat-hf" --epoch 1 --use_paracomet True --relation "xIntent" --use_sentence_transformer True --temperature 0 --k 4 --is_llm Tru --not_use_wandb
+```
 For FewShot some configuration are:
  - hugging_face_token <HUGGING FACE KEY>: Token to access Hugging Face and download the needed components.
  - project <PROJECT NAME>: Name of the project to use when loggin with wandb. If wandb is not used the argument is ignored.

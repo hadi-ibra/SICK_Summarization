@@ -1,5 +1,4 @@
-# Closing the Gap with Idioms and LLMs
-## A Hybrid Approach for Abstractive Dialogue Summarization
+# Closing the Gap with Idioms and LLMs // A Hybrid Approach for Abstractive Dialogue Summarization
 In this project we expand on the paper https://arxiv.org/abs/2209.00930, starting from reproducing the results obtained in the original research and then performing three extensions to evaluate correlated strategies. All the details about the work done and the results obtained are visible in the apposite report.
 
 Original repository : https://github.com/SeungoneKim/SICK_Summarization

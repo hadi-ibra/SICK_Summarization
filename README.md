@@ -47,7 +47,9 @@ The project can be run both in a local environment (if at least a GPU is present
 
 ## Demo
 Inside the project is present a ```demo.py``` file to run a pipeline with 4 different model (SICK, SICK+Idiom, Few-Shot (Llama), Few-Shot+Idiom (Llama)) on a dialog extracted from SamSum.
-A helper jupyter notebook is also present, called ```demo_runner.ipynb```. It contains all the required preliminary operation described in the "Setting" section with just a few path to modify.
+A helper jupyter notebook is also present, called ```demo_runner.ipynb```. It contains all the required preliminary operations described in the "Setting" section with just a few path to modify.
+To run the demo, add to your google drive, or folder of execution, the pre-trained weigths from [base_sick](https://drive.google.com/drive/folders/1JTKgwl0JOxpNOju-5kmz7BDD_yslAAgz?usp=sharing) and [idiom_sick](https://drive.google.com/drive/folders/1uhWqKFbv_1gChjuea59vCuuKBuHiXS12?usp=drive_link). After that just follow the steps written in the jupyter notebook.
+
 
 ## Experiments run
 Use the following command to run all the project experiments. Every experiment category present a subset of possible parameters.
